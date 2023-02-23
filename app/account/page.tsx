@@ -2,36 +2,40 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
-import { FirstTimeUserDialog } from "../test/page";
+import { FirstTimeUserDialog } from "./FirstTimeUserDialog";
 import supabase from "@/utils/supabase";
 
 export default function Account() {
     const { data: session } = useSession();
     const [newUser, setNewUser] = useState(false);
 
+    function signOutWithPresence() {
+        // Update user's data to show that they are offline.
+        supabase.from("users").update({ is_online: false }).match({ email: session!.user!.email });
+        signOut();
+    }
+
     useEffect(() => {
         if (session) {
             // Check if user is in database. If exists, update their data. If not, create a new user.
-            supabase
-                .from("users")
-                .select()
-                .match({ email: session.user!.email })
-                .maybeSingle()
-                .then(({ data, error }) => {
-                    if (error) console.log("%cError: " + (error.details || error.message), "color: red; font-size: 1.5rem;");
-                    else {
-                        if (data) {
-                            // User exists. Update their data.
-                            console.log("User exists.");
-                            supabase.from("users").update({ is_online: true }).match({ email: session.user!.email });
-                        } else {
-                            // User doesn't exist. Prompt for username and then create a new user.
-                            console.log("User doesn't exist.");
-                            setNewUser(true);
-                        }
-                    }
-                });
+            // Checking is done by checking if username is null in the session (which retrieves the username (or null if not present) from supabase)
+            // For more information, check [...nextauth].js and their callbacks
+            if (session.user!.username) {
+                // User is in database. Update their data.
+                supabase.from("users").update({ is_online: true }).match({ email: session.user!.email });
+            } else {
+                // User is not in database. Create a new user.
+                console.log("User does not exist.");
+                setNewUser(true);
+            }
         }
+
+        return () => {
+            if (session) {
+                // Update user's data to show that they are offline.
+                supabase.from("users").update({ is_online: false }).match({ email: session.user!.email });
+            }
+        };
     }, [session]);
 
     return (
@@ -65,14 +69,14 @@ export default function Account() {
             )}
             {session && (
                 <>
-                    {newUser && <FirstTimeUserDialog email={session.user?.email as string} />}
+                    {newUser && <FirstTimeUserDialog email={session.user!.email as string} />}
                     <p>Okay, great! You are signed in.</p>
                     <p>
-                        {session.user?.email} as {session.user?.name}
+                        {session.user!.email} as {session.user!.name}
                     </p>
-                    <img src={session.user?.image as string} className="border-2 border-white border-opacity-25" />
+                    <img src={session.user!.image as string} className="border-2 border-white border-opacity-25" />
                     <br />
-                    <button className="btn" data-tooltip="Sign out" onClick={() => signOut()}>
+                    <button className="btn" data-tooltip="Sign out" onClick={signOutWithPresence}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"

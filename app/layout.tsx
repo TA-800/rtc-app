@@ -110,8 +110,13 @@ function UserComponent() {
         <div className="fixed min-w-max md:min-w-0 bottom-2 md:left-2 md:-translate-x-0 left-1/2 -translate-x-1/2 flex scale-90 flex-row items-center justify-center gap-4 border-2 border-white border-opacity-25 bg-black bg-opacity-25 p-4 backdrop-blur-sm transition hover:scale-100">
             {session && (
                 <>
-                    <img src={session?.user?.image as string} className="h-12 w-12 rounded-full" />
-                    <span>{session?.user?.name}</span>
+                    <img src={session.user!.image as string} className="h-12 w-12 rounded-full border-2 border-white/25" />
+                    <div className="flex flex-col gap-1">
+                        <span className="text-lg font-semibold">{session!.user!.name}</span>
+                        {session.user!.username !== session.user!.name && (
+                            <span className="text-sm font-light">{session!.user!.username}</span>
+                        )}
+                    </div>
                 </>
             )}
             {!session && (

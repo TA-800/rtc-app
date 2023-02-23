@@ -4,10 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import supabase from "@/utils/supabase";
-
-export default function TEST() {
-    return <FirstTimeUserDialog email="" />;
-}
+import { signOut } from "next-auth/react";
 
 export function FirstTimeUserDialog({ email }: { email: string }) {
     const [open, setOpen] = useState(true);
@@ -17,14 +14,16 @@ export function FirstTimeUserDialog({ email }: { email: string }) {
         console.log("Submitting username with value: " + username);
         supabase
             .from("users")
-            .insert({ username: username, email: email, is_online: true })
-            .select()
+            .insert({ username: username, email: email, is_online: false }) // set is_online is false because of the immediate sign out following this
+            .select() // Return the data back to the client after inserting it.
+            .single()
             .then(({ data, error }) => {
                 if (error) console.log("%cError: " + (error.details || error.message), "color: red; font-size: 1.5rem;");
                 else {
-                    console.log("User created.");
-                    console.log(data);
-                    // setOpen(false);
+                    console.log("%cSuccess: " + data.username, "color: green; font-size: 1.5rem;");
+                    // Next-auth does not have a straightforward way to update/mutate the session data, so we have to sign out and sign back in.
+                    // https://github.com/nextauthjs/next-auth/discussions/4229
+                    signOut();
                 }
             });
     };
@@ -38,10 +37,11 @@ export function FirstTimeUserDialog({ email }: { email: string }) {
                 <Dialog.Overlay className="fixed inset-0 bg-black/50" />
                 <Dialog.Content
                     onInteractOutside={(e) => e?.preventDefault()}
-                    className="rounded-md bg-white text-black h-fit w-80 px-4 py-4 fixed inset-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-2">
+                    className="rounded-md dark:bg-white dark:text-black bg-black text-white h-fit w-80 px-4 py-4 fixed inset-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-2">
                     <Dialog.Title className="m-0">Edit Profile</Dialog.Title>
                     <Dialog.Description className="opacity-50">
-                        Specify a preferred, unique username (or use your email) to save this newly signed-in account.
+                        Specify a preferred, unique display username (or use your email or real name). You will need to sign in
+                        again once you save.
                     </Dialog.Description>
                     <br />
                     <label className="block" htmlFor="username">
@@ -50,7 +50,7 @@ export function FirstTimeUserDialog({ email }: { email: string }) {
                     <input
                         onChange={(e) => setUsername(e.target.value)}
                         value={username}
-                        className="block border-2 border-black/50 rounded-md p-2"
+                        className="block border-2 border-black/50 rounded-md p-2 text-black"
                         autoComplete="off"
                         type="text"
                         id="username"
@@ -70,7 +70,7 @@ export function FirstTimeUserDialog({ email }: { email: string }) {
                                         },
                                     }}
                                     onClick={handleSubmit}
-                                    className="flex flex-row gap-2 items-center justify-center bg-blue-600 w-max p-2 text-white ml-auto rounded-md">
+                                    className="focus:outline focus:outline-2 focus:outline-black flex flex-row gap-2 items-center justify-center bg-blue-600 w-max p-2 text-white ml-auto rounded-md">
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20"
