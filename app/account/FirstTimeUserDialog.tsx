@@ -14,7 +14,7 @@ export function FirstTimeUserDialog({ email }: { email: string }) {
         console.log("Submitting username with value: " + username);
         supabase
             .from("users")
-            .insert({ username: username, email: email, is_online: false }) // set is_online is false because of the immediate sign out following this
+            .insert({ username: username, email: email })
             .select() // Return the data back to the client after inserting it.
             .single()
             .then(({ data, error }) => {

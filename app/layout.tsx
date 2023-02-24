@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                                 />
                             </svg>
                         </Navitem>
-                        <button onClick={toggleDark} className="btn" data-tooltip="Toggle Dark">
+                        <button onClick={toggleDark} className="nav-btn" data-tooltip="Toggle Dark">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -95,7 +95,7 @@ function Navitem({ path, tooltip, children }: { path: string; tooltip?: string; 
                 // Scroll to top if already on the page
                 if (window.location.pathname === path) window.scrollTo({ top: 0, behavior: "smooth" });
             }}>
-            <Link href={path} data-tooltip={tooltip} className="btn">
+            <Link href={path} data-tooltip={tooltip} className="nav-btn">
                 {children}
             </Link>
         </li>
@@ -121,7 +121,7 @@ function UserComponent() {
             )}
             {!session && (
                 <>
-                    <Link href="/account" className="btn" data-tooltip="Sign In">
+                    <Link href="/account" className="nav-btn" data-tooltip="Sign In">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"

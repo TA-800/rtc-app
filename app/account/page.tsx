@@ -3,17 +3,10 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { FirstTimeUserDialog } from "./FirstTimeUserDialog";
-import supabase from "@/utils/supabase";
 
 export default function Account() {
     const { data: session } = useSession();
     const [newUser, setNewUser] = useState(false);
-
-    function signOutWithPresence() {
-        // Update user's data to show that they are offline.
-        supabase.from("users").update({ is_online: false }).match({ email: session!.user!.email });
-        signOut();
-    }
 
     useEffect(() => {
         if (session) {
@@ -21,21 +14,15 @@ export default function Account() {
             // Checking is done by checking if username is null in the session (which retrieves the username (or null if not present) from supabase)
             // For more information, check [...nextauth].js and their callbacks
             if (session.user!.username) {
-                // User is in database. Update their data.
-                supabase.from("users").update({ is_online: true }).match({ email: session.user!.email });
+                // User is in database.
+                console.log("User exists.");
+                console.log("%cSuccess: " + session.user!.username, "color: yellow; font-size: 1.5rem;");
             } else {
                 // User is not in database. Create a new user.
                 console.log("User does not exist.");
                 setNewUser(true);
             }
         }
-
-        return () => {
-            if (session) {
-                // Update user's data to show that they are offline.
-                supabase.from("users").update({ is_online: false }).match({ email: session.user!.email });
-            }
-        };
     }, [session]);
 
     return (
@@ -43,10 +30,10 @@ export default function Account() {
             <h2>Account</h2>
             {!session && (
                 <>
-                    <p>Unfortunately, you aren't signed in. Wanna do that?</p>
+                    <p>Sign in to start accessing rooms and talking to others!</p>
                     <br />
                     <div className="flex flex-row gap-2">
-                        <button className="btn" data-tooltip="Sign in (Google)" onClick={() => signIn("google")}>
+                        <button className="nav-btn" data-tooltip="Sign in (Google)" onClick={() => signIn("google")}>
                             <img
                                 src="https://img.icons8.com/ios-filled/512/google-logo.png"
                                 height="24px"
@@ -55,7 +42,7 @@ export default function Account() {
                                 className="dark:invert dark:filter"
                             />
                         </button>
-                        <button className="btn" data-tooltip="Sign in (Discord)" onClick={() => signIn("discord")}>
+                        <button className="nav-btn" data-tooltip="Sign in (Discord)" onClick={() => signIn("discord")}>
                             <img
                                 src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6918e57475a843f59f_icon_clyde_black_RGB.svg"
                                 height="24px"
@@ -76,7 +63,7 @@ export default function Account() {
                     </p>
                     <img src={session.user!.image as string} className="border-2 border-white border-opacity-25" />
                     <br />
-                    <button className="btn" data-tooltip="Sign out" onClick={signOutWithPresence}>
+                    <button className="nav-btn" data-tooltip="Sign out" onClick={() => signOut()}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
