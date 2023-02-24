@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             </svg>
                         </button>
                     </Navbar>
-                    <main className="w-screen h-[calc(100vh-5rem)] mt-20 p-2 text-inherit">{children}</main>
+                    <main className="max-w-screen h-[calc(100vh-5rem)] mt-20 p-2 text-inherit">{children}</main>
                     <UserComponent />
                 </body>
             </SessionProvider>
@@ -105,6 +105,11 @@ function Navitem({ path, tooltip, children }: { path: string; tooltip?: string; 
 // User component
 function UserComponent() {
     const { data: session } = useSession();
+
+    // Console log the session
+    useEffect(() => {
+        console.log(session);
+    }, [session]);
 
     return (
         <div className="fixed min-w-max md:min-w-0 bottom-2 md:left-2 md:-translate-x-0 left-1/2 -translate-x-1/2 flex scale-90 flex-row items-center justify-center gap-4 border-2 border-white border-opacity-25 bg-black bg-opacity-25 p-4 backdrop-blur-sm transition hover:scale-100">

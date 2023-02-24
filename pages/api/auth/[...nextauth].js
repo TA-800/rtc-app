@@ -28,17 +28,27 @@ export const authOptions = (req) => ({
         async jwt({ token, account, profile }) {
             // Persist the user's username to the token after sign in
             if (account) {
+                token.id = await getID(profile.email);
                 token.username = await getUsername(profile.email);
             }
             return token;
         },
         async session({ session, token }) {
             // Add property to session, like username
+            session.user.id = token.id;
             session.user.username = token.username;
             return session;
         },
     },
 });
+
+// Get the ID from the email
+async function getID(email) {
+    const { data, error } = await supabase.from("users").select("id").eq("email", email).maybeSingle();
+    if (error) console.log("%cError in getID(%s): " + (error.details || error.message), "color: red; font-size: 1.5rem;", email);
+    // Return the username or null if not found
+    return data ? data.id : null;
+}
 
 // Get the username from the email
 async function getUsername(email) {

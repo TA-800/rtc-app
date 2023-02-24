@@ -7,12 +7,12 @@ export type Json =
   | Json[]
 
 export interface Database {
-  graphql_public: {
+  graphql_public: {        
     Tables: {
-      [_ in never]: never
+      [_ in never]: never  
     }
     Views: {
-      [_ in never]: never
+      [_ in never]: never  
     }
     Functions: {
       graphql: {
@@ -34,6 +34,63 @@ export interface Database {
   }
   public: {
     Tables: {
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: number
+          room_id: string
+          sender_id: number
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: number
+          room_id: string
+          sender_id: number
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: number
+          room_id?: string
+          sender_id?: number
+        }
+      }
+      rooms: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+      }
+      rooms_members: {
+        Row: {
+          id: number
+          member_id: number
+          room_id: string
+        }
+        Insert: {
+          id?: number
+          member_id: number
+          room_id: string
+        }
+        Update: {
+          id?: number
+          member_id?: number
+          room_id?: string
+        }
+      }
       users: {
         Row: {
           created_at: string
