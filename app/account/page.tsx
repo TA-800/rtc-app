@@ -89,7 +89,7 @@ export default function Account() {
                 <>
                     <p>Sign out to stop accessing rooms and talking to others.</p>
                     <br />
-                    <p>User ID: {user.id}</p>
+                    <p>Username: {user.user_metadata.full_name}</p>
                     <button className="nav-btn" data-tooltip="Sign Out" onClick={signOut}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

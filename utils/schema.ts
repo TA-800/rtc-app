@@ -96,12 +96,26 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      get_unjoined_rooms: {
+        Args: {
+          user_id_input: string
+        }
+        Returns: {
+          id: string
+          name: string
+          created_at: string
+        }[]
+      }
       join_room: {
         Args: {
           user_id_input: string
           room_id_input: string
         }
-        Returns: undefined
+        Returns: {
+          created_at: string
+          room_id: string
+          user_id: string
+        }[]
       }
     }
     Enums: {

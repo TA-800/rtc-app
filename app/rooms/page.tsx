@@ -5,8 +5,11 @@ import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export async function getRooms() {
-    return await supabase.from("rooms").select("id, name");
+export async function getRooms(user_id: string) {
+    // select rooms in which the user is not a member
+    // select room id, room name from rooms table where room id is in rooms_users table where user id is not equal to current user id
+    // return await supabase.from("rooms_users").select("*, rooms (id, name)").neq("user_id", user_id);
+    return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
 }
 
 type Rooms = Awaited<ReturnType<typeof getRooms>>;
@@ -17,17 +20,20 @@ export default function Rooms() {
     const router = useRouter();
 
     useEffect(() => {
-        getRooms().then(({ data, error }) => {
-            if (error) {
-                console.log("%cError getting rooms", "color: red; font-weight: bold; font-size: 1.5rem;");
-                console.log(error);
-            }
-            if (data) {
-                console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
-                setRooms(data);
-            }
-        });
-    }, []);
+        if (user) {
+            getRooms(user.id).then(({ data, error }) => {
+                if (error) {
+                    console.log("%cError getting rooms", "color: red; font-weight: bold; font-size: 1.5rem;");
+                    console.log(error);
+                }
+                if (data) {
+                    console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
+                    console.log(data);
+                    setRooms(data);
+                }
+            });
+        }
+    }, [user]);
 
     async function joinRoom(room_id: string) {
         console.table({ room_id, user_id: user!.id });
