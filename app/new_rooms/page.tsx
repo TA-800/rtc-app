@@ -47,7 +47,7 @@ export default function Rooms() {
         <>
             <h1>New Rooms</h1>
             <br />
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-6">
                 {rooms?.map((room) => (
                     <li key={room.id} className="flex flex-col gap-2">
                         <div>

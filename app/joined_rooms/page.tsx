@@ -45,12 +45,12 @@ export default function Rooms() {
 
     return (
         <>
-            <h2>Joined Rooms</h2>
+            <h1>Joined Rooms</h1>
             <br />
-            <ul className="flex flex-col gap-4">
+            <ul className="flex flex-col gap-6">
                 {rooms?.map((room) => (
-                    <li key={room.id} className="flex flex-col gap-1">
-                        <span>{room.name}</span>
+                    <li key={room.id} className="flex flex-col gap-2">
+                        <h3>{room.name}</h3>
                         <button className="action-btn" onClick={() => joinRoom(room.id)}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
