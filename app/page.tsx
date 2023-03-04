@@ -18,6 +18,9 @@ function Start() {
     return (
         <div className="flex flex-col md:flex-row gap-4">
             <motion.button
+                onClick={() => {
+                    router.push("/joined_rooms");
+                }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ opacity: { duration: 0.5 } }}
@@ -33,7 +36,7 @@ function Start() {
             </motion.button>
             <motion.button
                 onClick={() => {
-                    router.push("/rooms");
+                    router.push("/new_rooms");
                 }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

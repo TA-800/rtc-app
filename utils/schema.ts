@@ -96,14 +96,26 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      get_joined_rooms: {
+        Args: {
+          user_id_input: string
+        }
+        Returns: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+        }[]
+      }
       get_unjoined_rooms: {
         Args: {
           user_id_input: string
         }
         Returns: {
+          created_at: string | null
+          description: string | null
           id: string
           name: string
-          created_at: string
         }[]
       }
       join_room: {

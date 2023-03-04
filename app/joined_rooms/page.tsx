@@ -9,7 +9,7 @@ export async function getRooms(user_id: string) {
     // select rooms in which the user is not a member
     // select room id, room name from rooms table where room id is in rooms_users table where user id is not equal to current user id
     // return await supabase.from("rooms_users").select("*, rooms (id, name)").neq("user_id", user_id);
-    return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
+    return await supabase.rpc("get_joined_rooms", { user_id_input: user_id });
 }
 
 type Rooms = Awaited<ReturnType<typeof getRooms>>;
@@ -37,17 +37,17 @@ export default function Rooms() {
 
     async function joinRoom(room_id: string) {
         console.table({ room_id, user_id: user!.id });
-        const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
-        console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
-        console.log(data);
-        // router.push(`/rooms/${room_id}`);
+        // const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
+        // console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
+        // console.log(data);
+        router.push(`/${room_id}`);
     }
 
     return (
         <>
-            <h2>Rooms</h2>
+            <h2>Joined Rooms</h2>
             <br />
-            <ul>
+            <ul className="flex flex-col gap-4">
                 {rooms?.map((room) => (
                     <li key={room.id} className="flex flex-col gap-1">
                         <span>{room.name}</span>
@@ -62,10 +62,10 @@ export default function Rooms() {
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"
-                                    d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"
+                                    d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3"
                                 />
                             </svg>
-                            Join
+                            Jump back in
                         </button>
                     </li>
                 ))}
