@@ -1,16 +1,13 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const { data: session } = useSession();
-
     return (
         <div className="flex justify-center items-center w-full h-full pb-[5.875rem]">
-            {!session && <h3>Hi. Sign up to get started!</h3>}
-            {session && <Start />}
+            {!true && <h3>Hi. Sign up to get started!</h3>}
+            {true && <Start />}
         </div>
     );
 }

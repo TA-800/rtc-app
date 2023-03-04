@@ -1,44 +1,51 @@
 "use client";
 
 import supabase from "@/utils/supabase";
-import { useSession } from "next-auth/react";
+import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-type Room = {
-    created_at: string;
-    id: string;
-    name: string;
-};
+export async function getRooms() {
+    return await supabase.from("rooms").select("id, name");
+}
 
-export default function Room() {
-    const { data: session } = useSession();
-    const [rooms, setRooms] = useState<Room[]>([]);
+type Rooms = Awaited<ReturnType<typeof getRooms>>;
+
+export default function Rooms() {
+    const [rooms, setRooms] = useState<Rooms["data"]>([]);
+    const user = useUser();
     const router = useRouter();
 
     useEffect(() => {
-        supabase
-            .from("rooms")
-            .select()
-            .then(({ data, error }) => {
-                if (error) console.log(error);
-                else setRooms(data);
-            });
+        getRooms().then(({ data, error }) => {
+            if (error) {
+                console.log("%cError getting rooms", "color: red; font-weight: bold; font-size: 1.5rem;");
+                console.log(error);
+            }
+            if (data) {
+                console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
+                setRooms(data);
+            }
+        });
     }, []);
+
+    async function joinRoom(room_id: string) {
+        console.table({ room_id, user_id: user!.id });
+        const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
+        console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
+        console.log(data);
+        // router.push(`/rooms/${room_id}`);
+    }
 
     return (
         <>
             <h2>Rooms</h2>
-            <p>Here are all the rooms you can join.</p>
             <br />
-            <div className="flex flex-col gap-2">
-                {rooms.map((room) => (
-                    <div key={room.id} className="flex flex-col gap-2">
-                        <div className="flex flex-col">
-                            <p className="text-lg">{room.name}</p>
-                            <p className="text-sm text-gray-500">{room.created_at}</p>
-                        </div>
-                        <button onClick={() => router.push(`/rooms/${room.id}`)} className="action-btn" data-tooltip="Join room">
+            <ul>
+                {rooms?.map((room) => (
+                    <li key={room.id} className="flex flex-col gap-1">
+                        <span>{room.name}</span>
+                        <button className="action-btn" onClick={() => joinRoom(room.id)}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -52,11 +59,11 @@ export default function Room() {
                                     d="M9 8.25H7.5a2.25 2.25 0 00-2.25 2.25v9a2.25 2.25 0 002.25 2.25h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25H15M9 12l3 3m0 0l3-3m-3 3V2.25"
                                 />
                             </svg>
-                            <span className="opacity-75">Join</span>
+                            Join
                         </button>
-                    </div>
+                    </li>
                 ))}
-            </div>
+            </ul>
         </>
     );
 }

@@ -7,12 +7,12 @@ export type Json =
   | Json[]
 
 export interface Database {
-  graphql_public: {        
+  graphql_public: {
     Tables: {
-      [_ in never]: never  
+      [_ in never]: never
     }
     Views: {
-      [_ in never]: never  
+      [_ in never]: never
     }
     Functions: {
       graphql: {
@@ -37,78 +37,58 @@ export interface Database {
       messages: {
         Row: {
           content: string
-          created_at: string | null
+          created_at: string
           id: number
-          room_id: string
-          sender_id: number
+          room_id: string | null
         }
         Insert: {
           content: string
-          created_at?: string | null
+          created_at?: string
           id?: number
-          room_id: string
-          sender_id: number
+          room_id?: string | null
         }
         Update: {
           content?: string
-          created_at?: string | null
+          created_at?: string
           id?: number
-          room_id?: string
-          sender_id?: number
+          room_id?: string | null
         }
       }
       rooms: {
         Row: {
-          created_at: string
+          created_at: string | null
+          description: string | null
           id: string
           name: string
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
           name?: string
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
           name?: string
         }
       }
-      rooms_members: {
-        Row: {
-          id: number
-          member_id: number
-          room_id: string
-        }
-        Insert: {
-          id?: number
-          member_id: number
-          room_id: string
-        }
-        Update: {
-          id?: number
-          member_id?: number
-          room_id?: string
-        }
-      }
-      users: {
+      rooms_users: {
         Row: {
           created_at: string
-          email: string
-          id: number
-          username: string
+          room_id: string
+          user_id: string
         }
         Insert: {
           created_at?: string
-          email?: string
-          id?: number
-          username?: string
+          room_id: string
+          user_id: string
         }
         Update: {
           created_at?: string
-          email?: string
-          id?: number
-          username?: string
+          room_id?: string
+          user_id?: string
         }
       }
     }
@@ -116,7 +96,13 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      join_room: {
+        Args: {
+          user_id_input: string
+          room_id_input: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
