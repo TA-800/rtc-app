@@ -76,7 +76,11 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             </div>
             <br />
             <MessagesScrollList messages={messages} />
-            <CreateMessage user={user?.user_metadata.full_name ?? ""} roomid={room_id} />
+            <CreateMessage
+                user={user?.user_metadata.full_name ?? ""}
+                userAvatar={user?.user_metadata.avatar_url}
+                roomid={room_id}
+            />
         </>
     );
 }
@@ -108,9 +112,13 @@ function MessagesScrollList({ messages }: { messages: Message[] }) {
 function Message({ message }: { message: Message }) {
     return (
         <li className="flex flex-col gap-2 w-full p-4 border-b-2 border-black/5 dark:border-white/5">
-            <p>
+            <div className="flex flex-row items-center gap-2">
+                <img
+                    src={message.sender_avatar_url}
+                    className="rounded-full w-14 h-14 border-2 border-black/50 dark:border-white/50"
+                />
                 <strong>{message.sender_name}</strong>
-            </p>
+            </div>
             <div>
                 <p>{message.content}</p>
                 <p className="opacity-60">
@@ -121,7 +129,7 @@ function Message({ message }: { message: Message }) {
     );
 }
 
-function CreateMessage({ user, roomid }: { user: string; roomid: string }) {
+function CreateMessage({ user, userAvatar, roomid }: { user: string; userAvatar: string; roomid: string }) {
     const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -135,7 +143,7 @@ function CreateMessage({ user, roomid }: { user: string; roomid: string }) {
         // Send message to backend
         supabase
             .from("messages")
-            .insert({ sender_name: user, content: target.content.value, room_id: roomid })
+            .insert({ sender_name: user, sender_avatar_url: userAvatar, content: target.content.value, room_id: roomid })
             .select()
             .then(({ data, error }) => {
                 if (error) {
