@@ -55,6 +55,11 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 // Ignore TS error from line below because payload isn't typed correctly... ?
                 // @ts-ignore
                 setMessages((messages) => [...messages, payload.new]);
+                // Scroll to bottom
+                document.querySelector("[data-radix-scroll-area-viewport]")!.scrollTo({
+                    top: document.querySelector("[data-radix-scroll-area-viewport]")!.scrollHeight,
+                    behavior: "smooth",
+                });
             })
             .subscribe();
 
@@ -80,7 +85,7 @@ function MessagesScrollList({ messages }: { messages: Message[] }) {
     return (
         <ScrollArea.Root className="text-black lg:w-3/4 w-full h-[calc(100vh-270px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
             <ScrollArea.Viewport className="w-full h-full rounded">
-                <div className="w-full bg-gray-300 dark:bg-zinc-700 p-4">Message Log</div>
+                <div className="w-full bg-gray-200 dark:bg-zinc-700 p-4">Message Log</div>
                 {messages.map((message) => (
                     <Message message={message} key={message.id} />
                 ))}
@@ -109,10 +114,7 @@ function Message({ message }: { message: Message }) {
             <div>
                 <p>{message.content}</p>
                 <p className="opacity-60">
-                    {
-                        // Date formatting
-                        new Date(message.created_at).toDateString() + " " + new Date(message.created_at).toLocaleTimeString()
-                    }
+                    {new Date(message.created_at).toDateString() + " " + new Date(message.created_at).toLocaleTimeString()}
                 </p>
             </div>
         </li>
