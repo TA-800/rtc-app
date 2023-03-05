@@ -39,7 +39,7 @@ const AccordionItem = ({ value, children }: { value: string; children: React.Rea
 
 const AccordionTrigger = ({ children }: { children: React.ReactNode }) => {
     return (
-        <Accordion.Trigger className="dark:bg-zinc-700 bg-gray-200 dark:border-white/25 border-black/25 border-2 w-full flex flex-row gap-1 justify-center items-center p-2 data-[state=closed]:rounded-md data-[state=open]:rounded-t-md transition-all data-[state=closed]:delay-500">
+        <Accordion.Trigger className="transition-[border-radius] data-[state=closed]:delay-500 duration-200 dark:bg-zinc-700 bg-gray-200 dark:border-white/25 border-black/25 border-2 w-full flex flex-row gap-1 justify-center items-center p-2 data-[state=closed]:rounded-md data-[state=open]:rounded-t-md">
             {children}
         </Accordion.Trigger>
     );

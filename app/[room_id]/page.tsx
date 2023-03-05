@@ -65,8 +65,10 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
 
     return (
         <>
-            <h1>{room?.name}</h1>
-            <RoomDescription description={room?.description ?? ""} />
+            <div className="flex flex-col gap-1">
+                <h1>{room?.name}</h1>
+                <RoomDescription description={room?.description ?? ""} />
+            </div>
             <br />
             <MessagesScrollList messages={messages} />
             <CreateMessage user={user?.user_metadata.full_name ?? ""} roomid={room_id} />
@@ -74,9 +76,33 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
     );
 }
 
+function MessagesScrollList({ messages }: { messages: Message[] }) {
+    return (
+        <ScrollArea.Root className="text-black lg:w-3/4 w-full h-[calc(100vh-270px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
+            <ScrollArea.Viewport className="w-full h-full rounded">
+                <div className="w-full bg-gray-300 dark:bg-zinc-700 p-4">Message Log</div>
+                {messages.map((message) => (
+                    <Message message={message} key={message.id} />
+                ))}
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar
+                className="flex select-none touch-none p-0.5 bg-black/10 dark:bg-white/10 transition-colors duration-[160ms] ease-out hover:bg-blackA8 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
+                orientation="vertical">
+                <ScrollArea.Thumb className="flex-1 bg-black dark:bg-white rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
+            </ScrollArea.Scrollbar>
+            <ScrollArea.Scrollbar
+                className="flex select-none touch-none p-0.5 bg-black/10 transition-colors duration-[160ms] ease-out hover:bg-blackA8 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
+                orientation="horizontal">
+                <ScrollArea.Thumb className="flex-1 bg-black rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
+            </ScrollArea.Scrollbar>
+            <ScrollArea.Corner className="bg-blackA8" />
+        </ScrollArea.Root>
+    );
+}
+
 function Message({ message }: { message: Message }) {
     return (
-        <li className="flex flex-col gap-2">
+        <li className="flex flex-col gap-2 w-full p-4 border-b-2 border-black/5 dark:border-white/5">
             <p>
                 <strong>{message.sender_name}</strong>
             </p>
@@ -85,11 +111,7 @@ function Message({ message }: { message: Message }) {
                 <p className="opacity-60">
                     {
                         // Date formatting
-                        new Date(message.created_at).toDateString().substring(4) +
-                            ", " + // Time formatting
-                            new Date(message.created_at).toLocaleTimeString().substring(0, 4) +
-                            " " + // AM/PM formatting
-                            new Date(message.created_at).toLocaleTimeString().substring(8)
+                        new Date(message.created_at).toDateString() + " " + new Date(message.created_at).toLocaleTimeString()
                     }
                 </p>
             </div>
@@ -153,35 +175,5 @@ function CreateMessage({ user, roomid }: { user: string; roomid: string }) {
                 Send
             </button>
         </form>
-    );
-}
-
-function MessagesScrollList({ messages }: { messages: Message[] }) {
-    return (
-        <ScrollArea.Root className="text-black lg:w-3/4 w-full h-80 rounded overflow-hidden bg-white mb-20">
-            <ScrollArea.Viewport className="w-full h-full rounded">
-                <div className="py-[15px] px-5">
-                    <div className="text-violet11 text-[15px] leading-[18px] font-medium">Message Log</div>
-                    {messages.map((message) => (
-                        <div
-                            className="text-mauve12 text-[13px] leading-[18px] mt-2.5 pt-2.5 border-t border-t-mauve6"
-                            key={message.id}>
-                            <Message message={message} />
-                        </div>
-                    ))}
-                </div>
-            </ScrollArea.Viewport>
-            <ScrollArea.Scrollbar
-                className="flex select-none touch-none p-0.5 bg-blackA6 transition-colors duration-[160ms] ease-out hover:bg-blackA8 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
-                orientation="vertical">
-                <ScrollArea.Thumb className="flex-1 bg-mauve10 rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
-            </ScrollArea.Scrollbar>
-            <ScrollArea.Scrollbar
-                className="flex select-none touch-none p-0.5 bg-blackA6 transition-colors duration-[160ms] ease-out hover:bg-blackA8 data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2.5"
-                orientation="horizontal">
-                <ScrollArea.Thumb className="flex-1 bg-mauve10 rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
-            </ScrollArea.Scrollbar>
-            <ScrollArea.Corner className="bg-blackA8" />
-        </ScrollArea.Root>
     );
 }
