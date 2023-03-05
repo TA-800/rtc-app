@@ -3,30 +3,30 @@ export type Json =
   | number
   | boolean
   | null
-  | { [key: string]: Json }
+  | { [key: string]: Json }     
   | Json[]
 
-export interface Database {
-  graphql_public: {        
+export interface Database {     
+  graphql_public: {
     Tables: {
-      [_ in never]: never  
+      [_ in never]: never       
     }
     Views: {
-      [_ in never]: never  
+      [_ in never]: never       
     }
     Functions: {
       graphql: {
         Args: {
           operationName?: string
-          query?: string
-          variables?: Json
-          extensions?: Json
+          query?: string        
+          variables?: Json      
+          extensions?: Json     
         }
         Returns: Json
       }
     }
     Enums: {
-      [_ in never]: never
+      [_ in never]: never       
     }
     CompositeTypes: {
       [_ in never]: never
@@ -39,21 +39,21 @@ export interface Database {
           content: string
           created_at: string
           id: number
-          room_id: string | null
+          room_id: string
           sender_name: string
         }
         Insert: {
           content: string
           created_at?: string
           id?: number
-          room_id?: string | null
+          room_id: string
           sender_name: string
         }
         Update: {
           content?: string
           created_at?: string
           id?: number
-          room_id?: string | null
+          room_id?: string
           sender_name?: string
         }
       }
