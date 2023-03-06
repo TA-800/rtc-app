@@ -41,6 +41,7 @@ export interface Database {
           id: number
           room_id: string
           sender_avatar_url: string
+          sender_id: string
           sender_name: string
         }
         Insert: {
@@ -49,6 +50,7 @@ export interface Database {
           id?: number
           room_id: string
           sender_avatar_url: string
+          sender_id: string
           sender_name: string
         }
         Update: {
@@ -57,6 +59,7 @@ export interface Database {
           id?: number
           room_id?: string
           sender_avatar_url?: string
+          sender_id?: string
           sender_name?: string
         }
       }

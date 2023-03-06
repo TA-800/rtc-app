@@ -19,7 +19,6 @@ type Room = Awaited<ReturnType<typeof getRoom>>;
 type Message = Database["public"]["Tables"]["messages"]["Row"];
 
 export default function Room({ params: { room_id } }: { params: { room_id: string } }) {
-    const user = useUser();
     const [room, setRoom] = useState<Room["data"]>();
     const [messages, setMessages] = useState<Message[]>([]);
 
@@ -52,7 +51,6 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
                 console.log("Received realtime update:", payload);
                 // Update messages
-                // Ignore TS error from line below because payload isn't typed correctly... ?
                 // @ts-ignore
                 setMessages((messages) => [...messages, payload.new]);
                 // Scroll to bottom
@@ -60,6 +58,11 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                     top: document.querySelector("[data-radix-scroll-area-viewport]")!.scrollHeight,
                     behavior: "smooth",
                 });
+            })
+            .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" }, (payload) => {
+                console.log("Received realtime update:", payload);
+                // Update messages
+                setMessages((messages) => messages.filter((message) => message.id !== payload.old.id));
             })
             .subscribe();
 
@@ -77,8 +80,8 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             <br />
             <MessagesScrollList messages={messages} />
             <CreateMessage
-                user={user?.user_metadata.full_name ?? ""}
-                userAvatar={user?.user_metadata.avatar_url}
+                // user={user?.user_metadata.full_name ?? ""}
+                // userAvatar={user?.user_metadata.avatar_url}
                 roomid={room_id}
             />
         </>
@@ -110,6 +113,25 @@ function MessagesScrollList({ messages }: { messages: Message[] }) {
 }
 
 function Message({ message }: { message: Message }) {
+    const user = useUser();
+
+    const handleDelete = () => {
+        supabase
+            .from("messages")
+            .delete()
+            .eq("id", message.id)
+            .then(({ data, error }) => {
+                if (error) {
+                    console.log("%cError deleting message", "color: red; font-weight: bold; font-size: 1.5rem;");
+                    console.log(error);
+                }
+                if (data) {
+                    console.log("%cMessage deleted!", "color: green; font-weight: bold; font-size: 1.5rem;");
+                    console.log(data);
+                }
+            });
+    };
+
     return (
         <li className="flex flex-col gap-2 w-full p-4 border-b-2 border-black/5 dark:border-white/5">
             <div className="flex flex-row items-center gap-2">
@@ -121,15 +143,36 @@ function Message({ message }: { message: Message }) {
             </div>
             <div>
                 <p>{message.content}</p>
-                <p className="opacity-60">
-                    {new Date(message.created_at).toDateString() + " " + new Date(message.created_at).toLocaleTimeString()}
-                </p>
+                <div className="flex flex-row items-center">
+                    <p className="opacity-60">
+                        {new Date(message.created_at).toDateString() + " " + new Date(message.created_at).toLocaleTimeString()}
+                    </p>
+                    {message.sender_id === user?.id && message.sender_name === user?.user_metadata.full_name && (
+                        <button className="action-btn bg-red-700 ml-auto" onClick={handleDelete}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth={1.5}
+                                stroke="currentColor"
+                                className="w-6 h-6">
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                                />
+                            </svg>
+                            Delete
+                        </button>
+                    )}
+                </div>
             </div>
         </li>
     );
 }
 
-function CreateMessage({ user, userAvatar, roomid }: { user: string; userAvatar: string; roomid: string }) {
+function CreateMessage({ roomid }: { roomid: string }) {
+    const user = useUser();
     const router = useRouter();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -143,7 +186,13 @@ function CreateMessage({ user, userAvatar, roomid }: { user: string; userAvatar:
         // Send message to backend
         supabase
             .from("messages")
-            .insert({ sender_name: user, sender_avatar_url: userAvatar, content: target.content.value, room_id: roomid })
+            .insert({
+                sender_name: user!.user_metadata.full_name,
+                sender_id: user!.id,
+                sender_avatar_url: user?.user_metadata.avatar_url,
+                content: target.content.value,
+                room_id: roomid,
+            })
             .select()
             .then(({ data, error }) => {
                 if (error) {
