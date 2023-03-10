@@ -8,6 +8,7 @@ export default function useUser() {
     // Use useEffect to set up a listener for auth state changes
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session }, error }) => {
+            if (error) console.log("%cError retrieving session: ", "color: red; font-size: 1.25rem;", error);
             setUser(session?.user ?? null);
         });
     }, []);

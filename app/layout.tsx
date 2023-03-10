@@ -1,8 +1,11 @@
 "use client";
 
+import useUser from "@/utils/useUser";
+import userPopover from "./userPopover";
 import Link from "next/link";
 import { useEffect } from "react";
 import "./globals.css";
+import UserPopover from "./userPopover";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     useEffect(() => {
@@ -67,9 +70,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             />
                         </svg>
                     </button>
+                    <UserPopover>
+                        <UserNavItem />
+                    </UserPopover>
                 </Navbar>
                 <main className="max-w-screen h-[calc(100vh-5rem)] mt-20 p-2 text-inherit">{children}</main>
-                {/* <UserComponent /> */}
             </body>
         </html>
     );
@@ -98,6 +103,36 @@ function Navitem({ path, tooltip, children }: { path: string; tooltip?: string; 
             </Link>
         </li>
     );
+}
+
+function UserNavItem() {
+    const user = useUser();
+    if (user) {
+        return (
+            <img
+                src={user.user_metadata.avatar_url}
+                className="h-[50px] w-[50px] rounded-sm border-2 border-black/10 dark:border-white/10"
+            />
+        );
+    } else {
+        return (
+            <div className="nav-btn" data-tooltip="User Info">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    className="w-6 h-6">
+                    <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
+                    />
+                </svg>
+            </div>
+        );
+    }
 }
 
 function toggleDark() {

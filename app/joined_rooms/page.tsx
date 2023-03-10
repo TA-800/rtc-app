@@ -36,10 +36,6 @@ export default function Rooms() {
     }, [user]);
 
     async function joinRoom(room_id: string) {
-        console.table({ room_id, user_id: user!.id });
-        // const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
-        // console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
-        // console.log(data);
         router.push(`/${room_id}`);
     }
 

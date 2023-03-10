@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export async function getRooms(user_id: string) {
-    // select rooms in which the user is not a member
-    // select room id, room name from rooms table where room id is in rooms_users table where user id is not equal to current user id
-    // return await supabase.from("rooms_users").select("*, rooms (id, name)").neq("user_id", user_id);
     return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
 }
 
@@ -36,7 +33,6 @@ export default function Rooms() {
     }, [user]);
 
     async function joinRoom(room_id: string) {
-        console.table({ room_id, user_id: user!.id });
         const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
         console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
         console.log(data);
