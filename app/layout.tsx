@@ -1,7 +1,6 @@
 "use client";
 
 import useUser from "@/utils/useUser";
-import userPopover from "./userPopover";
 import Link from "next/link";
 import { useEffect } from "react";
 import "./globals.css";

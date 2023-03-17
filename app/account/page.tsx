@@ -62,6 +62,9 @@ export default function Account() {
             {!user && (
                 <>
                     <p>Sign in to start accessing rooms and talking to others!</p>
+                    <p className="opacity-60 text-sm">
+                        Note that at the moment, accounts with the same email will share the same RTC account.
+                    </p>
                     <br />
                     <div className="flex flex-row gap-2">
                         <button className="nav-btn" data-tooltip="Sign in (Google)" onClick={signInWithGoogle}>

@@ -116,6 +116,13 @@ export interface Database {
           name: string
         }[]
       }
+      get_new_messages_count: {
+        Args: {
+          time_iso: string
+          room_id_input: string
+        }
+        Returns: number
+      }
       get_unjoined_rooms: {
         Args: {
           user_id_input: string

@@ -22,7 +22,24 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
     const [room, setRoom] = useState<Room>();
     const [messages, setMessages] = useState<Message[]>([]);
 
+    function updateLastTime() {
+        // Save current time to local storage
+        // localstorage -> last_message_time is an array of objects: {room-id, time-of-last-seen-msg}
+        // Convert last_message_time to array of objects from JSON String, then add/modify current room object's time, then convert back to JSON String and save to localstorage
+        const last_message_times = JSON.parse(localStorage.getItem("last_message_times") ?? "[]");
+        const room_index = last_message_times.findIndex((room: { room_id: string }) => room.room_id === room_id);
+        if (room_index === -1) {
+            last_message_times.push({ room_id: room_id, time_iso: new Date().toISOString() });
+        } else {
+            last_message_times[room_index].time_iso = new Date().toISOString();
+        }
+        localStorage.setItem("last_message_times", JSON.stringify(last_message_times));
+    }
+
     useEffect(() => {
+        // Update last message time
+        updateLastTime();
+
         getRoom(room_id).then(({ data, error }) => {
             if (error) {
                 console.log("%cError getting room", "color: red; font-weight: bold; font-size: 1.5rem;");
@@ -53,6 +70,8 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 // Update messages
                 // @ts-ignore
                 setMessages((messages) => [...messages, payload.new]);
+                // Save current time to local storage
+                updateLastTime();
                 // Scroll to bottom
                 document.querySelector("[data-radix-scroll-area-viewport]")!.scrollTo({
                     top: document.querySelector("[data-radix-scroll-area-viewport]")!.scrollHeight,
@@ -63,6 +82,8 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 console.log("Received realtime update:", payload);
                 // Update messages
                 setMessages((messages) => messages.filter((message) => message.id !== payload.old.id));
+                // Save current time to local storage
+                updateLastTime();
             })
             .subscribe();
 
