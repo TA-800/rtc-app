@@ -10,12 +10,10 @@ export async function getRooms(user_id: string) {
     return await supabase.rpc("get_joined_rooms", { user_id_input: user_id });
 }
 
-// type Rooms = Awaited<ReturnType<typeof getRooms>>;
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
 type ModifiedRoom = Room & { new_messages_count: number };
 
 export default function Rooms() {
-    // const [rooms, setRooms] = useState<Room[]>([]);
     const [rooms, setRooms] = useState<ModifiedRoom[]>([]);
     const user = useUser();
     const router = useRouter();
@@ -34,11 +32,20 @@ export default function Rooms() {
                     data.forEach(async (room) => {
                         let time: Date | null = null;
                         const last_message_times = JSON.parse(localStorage.getItem("last_message_times") ?? "null");
-                        const room_index = last_message_times?.findIndex(
-                            ({ room_id }: { room_id: string }) => room_id === room.id
-                        );
-                        if (room_index !== -1) {
-                            time = last_message_times[room_index].time_iso;
+                        // const room_index = last_message_times?.findIndex(
+                        //     ({ room_id }: { room_id: string }) => room_id === room.id
+                        // );
+                        // Rewrite the above line but also include the user_id in the search
+                        let room_index = -1;
+
+                        if (last_message_times) {
+                            room_index = last_message_times.findIndex(
+                                ({ room_id, user_id }: { room_id: string; user_id: string }) =>
+                                    room_id === room.id && user_id === user.id
+                            );
+                            if (room_index !== -1) {
+                                time = last_message_times[room_index].time_iso;
+                            }
                         }
 
                         const { data: new_messages_count, error } = await supabase.rpc("get_new_messages_count", {
@@ -50,6 +57,7 @@ export default function Rooms() {
                             "room-id": room.id,
                             "last-message-time": time,
                             "new-messages-count": new_messages_count,
+                            "local-storage": last_message_times,
                         });
 
                         console.log("%cNew messages count", "color: green; font-weight: bold; font-size: 1.5rem;");
