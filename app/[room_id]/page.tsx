@@ -19,26 +19,31 @@ type Room = Database["public"]["Tables"]["rooms"]["Row"];
 type Message = Database["public"]["Tables"]["messages"]["Row"];
 
 export default function Room({ params: { room_id } }: { params: { room_id: string } }) {
+    const user = useUser();
     const [room, setRoom] = useState<Room>();
     const [messages, setMessages] = useState<Message[]>([]);
 
-    function updateLastTime() {
+    function updateLastTime(created_at: string = new Date().toISOString()) {
         // Save current time to local storage
         // localstorage -> last_message_time is an array of objects: {room-id, time-of-last-seen-msg}
         // Convert last_message_time to array of objects from JSON String, then add/modify current room object's time, then convert back to JSON String and save to localstorage
         const last_message_times = JSON.parse(localStorage.getItem("last_message_times") ?? "[]");
-        const room_index = last_message_times.findIndex((room: { room_id: string }) => room.room_id === room_id);
+        const room_index = last_message_times.findIndex(
+            (room: { user_id: string; room_id: string }) => room.room_id === room_id && room.user_id === user!.id
+        );
         if (room_index === -1) {
-            last_message_times.push({ room_id: room_id, time_iso: new Date().toISOString() });
+            last_message_times.push({ user_id: user!.id, room_id: room_id, time_iso: created_at });
         } else {
-            last_message_times[room_index].time_iso = new Date().toISOString();
+            last_message_times[room_index].time_iso = created_at;
         }
         localStorage.setItem("last_message_times", JSON.stringify(last_message_times));
     }
 
     useEffect(() => {
         // Update last message time
-        updateLastTime();
+        if (user) {
+            updateLastTime();
+        }
 
         getRoom(room_id).then(({ data, error }) => {
             if (error) {
@@ -71,7 +76,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 // @ts-ignore
                 setMessages((messages) => [...messages, payload.new]);
                 // Save current time to local storage
-                updateLastTime();
+                updateLastTime(payload.new.created_at);
                 // Scroll to bottom
                 document.querySelector("[data-radix-scroll-area-viewport]")!.scrollTo({
                     top: document.querySelector("[data-radix-scroll-area-viewport]")!.scrollHeight,
@@ -90,7 +95,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
         return () => {
             messagesSubscription.unsubscribe();
         };
-    }, []);
+    }, [user]);
 
     return (
         <>
