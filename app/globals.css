@@ -33,7 +33,7 @@ a {
 }
 html.dark {
     color: white;
-    background: rgb(0, 11, 41);
+    /* background: rgb(0, 11, 41); */
     background: radial-gradient(circle, rgba(0, 11, 41, 1) 0%, rgba(0, 0, 1, 1) 100%);
 }
 

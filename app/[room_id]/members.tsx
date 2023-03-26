@@ -44,8 +44,8 @@ export default function Members({
                         </button>
                     </div>
                     <div className="flex flex-col gap-2 p-2">
-                        {members.map((member) => (
-                            <div className="flex flex-row items-center gap-2">
+                        {members.map((member, index) => (
+                            <div key={index} className="flex flex-row items-center gap-2">
                                 <img
                                     src={member.avatar}
                                     className="rounded-full w-14 h-14 border-2 border-black/50 dark:border-white/50"

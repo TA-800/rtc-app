@@ -57,6 +57,9 @@ function Start() {
                 <span className="opacity-75">Join a new room.</span>
             </motion.button>
             <motion.button
+                onClick={() => {
+                    router.push("/create_room");
+                }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ opacity: { duration: 0.5 } }}
