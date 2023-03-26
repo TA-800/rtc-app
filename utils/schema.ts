@@ -1,5 +1,5 @@
 export type Json =
-  | string
+  | string        
   | number
   | boolean
   | null
@@ -132,6 +132,16 @@ export interface Database {
           description: string | null
           id: string
           name: string
+        }[]
+      }
+      get_users_from_room: {
+        Args: {
+          room_id_input: string
+        }
+        Returns: {
+          name: string
+          avatar: string
+          email: string
         }[]
       }
       join_room: {

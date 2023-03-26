@@ -1,9 +1,6 @@
-import { useState } from "react";
 import * as Accordion from "@radix-ui/react-accordion";
 
 export default function RoomDescription({ description }: { description: string }) {
-    const [open, setOpen] = useState(false);
-
     return (
         <Accordion.Root className="lg:w-3/4 w-full" type="single" collapsible>
             <AccordionItem value="item-1">
@@ -26,8 +23,6 @@ export default function RoomDescription({ description }: { description: string }
         </Accordion.Root>
     );
 }
-
-// const AccordionItem = Accordion.Item;
 
 const AccordionItem = ({ value, children }: { value: string; children: React.ReactNode }) => {
     return (

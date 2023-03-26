@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { Database } from "@/utils/schema";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import RoomDescription from "./description";
+import Members from "./members";
+import { Member } from "./members";
 
 async function getRoom(room_id: string) {
     return await supabase.from("rooms").select().eq("id", room_id).single();
@@ -14,14 +16,24 @@ async function getMessages(room_id: string) {
     return await supabase.from("messages").select().eq("room_id", room_id);
 }
 
-// type Room = Awaited<ReturnType<typeof getRoom>>;
+async function getUsers(room_id: string) {
+    return await supabase.rpc("get_users_from_room", { room_id_input: room_id }).returns<User[]>();
+}
+
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
 type Message = Database["public"]["Tables"]["messages"]["Row"];
+type User = {
+    name: string;
+    avatar: string;
+    email: string;
+};
 
 export default function Room({ params: { room_id } }: { params: { room_id: string } }) {
     const user = useUser();
     const [room, setRoom] = useState<Room>();
     const [messages, setMessages] = useState<Message[]>([]);
+    const [members, setMembers] = useState<Member[]>([]);
+    const [showMembers, setShowMembers] = useState(false);
 
     function updateLastTime(created_at: string = new Date().toISOString()) {
         // Save current time to local storage
@@ -67,6 +79,18 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             }
         });
 
+        getUsers(room_id).then(({ data, error }) => {
+            if (error) {
+                console.log("%cError getting users", "color: red; font-weight: bold; font-size: 1.5rem;");
+                console.log(error);
+            }
+            if (data) {
+                console.log("%cUsers obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
+                console.log(data);
+                setMembers(data);
+            }
+        });
+
         // Subscribe to realtime updates
         const messagesSubscription = supabase
             .channel(`room:${room_id}`)
@@ -104,15 +128,18 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 <RoomDescription description={room?.description ?? ""} />
             </div>
             <br />
-            <MessagesScrollList messages={messages} />
-            <CreateMessage roomid={room_id} />
+            <div className="grid grid-flow-col grid-cols-4 gap-2">
+                <MessagesScrollList messages={messages} />
+                <Members members={members} showMembers={showMembers} setShowMembers={setShowMembers} />
+            </div>
+            <CreateMessage roomid={room_id} setShowMembers={setShowMembers} />
         </>
     );
 }
 
 function MessagesScrollList({ messages }: { messages: Message[] }) {
     return (
-        <ScrollArea.Root className="text-black lg:w-3/4 w-full h-[calc(100vh-270px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
+        <ScrollArea.Root className="text-black lg:col-span-3 col-span-4 h-[calc(100vh-270px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
             <ScrollArea.Viewport className="w-full h-full rounded">
                 <div className="w-full bg-gray-200 dark:bg-zinc-700 p-4">Message Log</div>
                 {messages
@@ -131,7 +158,7 @@ function MessagesScrollList({ messages }: { messages: Message[] }) {
                 orientation="horizontal">
                 <ScrollArea.Thumb className="flex-1 bg-black rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
             </ScrollArea.Scrollbar>
-            <ScrollArea.Corner className="bg-blackA8" />
+            <ScrollArea.Corner className="bg-black" />
         </ScrollArea.Root>
     );
 }
@@ -198,7 +225,13 @@ function Message({ message }: { message: Message }) {
     );
 }
 
-function CreateMessage({ roomid }: { roomid: string }) {
+function CreateMessage({
+    roomid,
+    setShowMembers,
+}: {
+    roomid: string;
+    setShowMembers: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const user = useUser();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -206,9 +239,7 @@ function CreateMessage({ roomid }: { roomid: string }) {
         const target = e.target as typeof e.target & {
             content: { value: string };
         };
-        console.log("user: " + user);
         if (target.content.value === "") return;
-        console.log(target.content.value);
         // Send message to backend
         supabase
             .from("messages")
@@ -237,7 +268,7 @@ function CreateMessage({ roomid }: { roomid: string }) {
 
     return (
         <form className="flex flex-row gap-2 w-full fixed bottom-2 left-[2px]" onSubmit={(e) => handleSubmit(e)}>
-            <button className="action-btn dark:bg-blue-900 bg-blue-400">
+            <button className="lg:hidden action-btn dark:bg-blue-900 bg-blue-400" onClick={() => setShowMembers(true)}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
                     <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM6 8a2 2 0 11-4 0 2 2 0 014 0zM1.49 15.326a.78.78 0 01-.358-.442 3 3 0 014.308-3.516 6.484 6.484 0 00-1.905 3.959c-.023.222-.014.442.025.654a4.97 4.97 0 01-2.07-.655zM16.44 15.98a4.97 4.97 0 002.07-.654.78.78 0 00.357-.442 3 3 0 00-4.308-3.517 6.484 6.484 0 011.907 3.96 2.32 2.32 0 01-.026.654zM18 8a2 2 0 11-4 0 2 2 0 014 0zM5.304 16.19a.844.844 0 01-.277-.71 5 5 0 019.947 0 .843.843 0 01-.277.71A6.975 6.975 0 0110 18a6.974 6.974 0 01-4.696-1.81z" />
                 </svg>
