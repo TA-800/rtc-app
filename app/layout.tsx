@@ -1,18 +1,35 @@
 "use client";
 
 import useUser from "@/utils/useUser";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useEffect } from "react";
 import "./globals.css";
 import UserPopover from "./userPopover";
+import { User } from "@supabase/supabase-js"; // Import User type from supabase-js
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+    const user = useUser();
+    const pathname = usePathname();
+    const router = useRouter();
+
     useEffect(() => {
         // Add dark mode class to body
         if (localStorage.getItem("dark") === "true") {
             document.documentElement.classList.add("dark");
         }
     }, []);
+
+    useEffect(() => {
+        // Check if the user is logged in on every protected page
+        const protectedPaths = ["/create_room", "/joined_rooms", "/new_rooms"];
+
+        if (!user) {
+            if (protectedPaths.includes(pathname!) || pathname!.startsWith("/room/")) {
+                router.push("/account");
+            }
+        }
+    }, [pathname]);
 
     return (
         <html lang="en">
@@ -70,7 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         </svg>
                     </button>
                     <UserPopover>
-                        <UserNavItem />
+                        <UserNavItem user={user} />
                     </UserPopover>
                 </Navbar>
                 <main className="max-w-screen h-[calc(100vh-5rem)] mt-20 p-2 text-inherit">{children}</main>
@@ -104,8 +121,7 @@ function Navitem({ path, tooltip, children }: { path: string; tooltip?: string; 
     );
 }
 
-function UserNavItem() {
-    const user = useUser();
+function UserNavItem({ user }: { user: User | null }) {
     if (user) {
         return (
             <img

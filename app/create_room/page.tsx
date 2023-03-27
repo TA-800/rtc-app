@@ -49,7 +49,7 @@ export default function CreateNew() {
                             }
                             if (data) {
                                 console.log("%cUser added to room!", "color: green; font-weight: bold; font-size: 1.5rem;");
-                                router.push(`/${data[0].room_id}`);
+                                router.push(`/room/${data[0].room_id}`);
                             }
                         });
                 }

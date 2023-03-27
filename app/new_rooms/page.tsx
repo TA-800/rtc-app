@@ -4,15 +4,17 @@ import supabase from "@/utils/supabase";
 import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Database } from "@/utils/schema";
 
 export async function getRooms(user_id: string) {
     return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
 }
 
-type Rooms = Awaited<ReturnType<typeof getRooms>>;
+// type Rooms = Awaited<ReturnType<typeof getRooms>>;
+type Room = Database["public"]["Tables"]["rooms"]["Row"];
 
 export default function Rooms() {
-    const [rooms, setRooms] = useState<Rooms["data"]>([]);
+    const [rooms, setRooms] = useState<Room[]>([]);
     const user = useUser();
     const router = useRouter();
 
@@ -36,7 +38,7 @@ export default function Rooms() {
         const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
         console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
         console.log(data);
-        router.push(`/${room_id}`);
+        router.push(`/room/${room_id}`);
     }
 
     return (

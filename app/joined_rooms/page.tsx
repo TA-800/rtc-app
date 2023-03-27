@@ -80,7 +80,7 @@ export default function Rooms() {
     }, [user]);
 
     async function joinRoom(room_id: string) {
-        router.push(`/${room_id}`);
+        router.push(`/room/${room_id}`);
     }
 
     return (
