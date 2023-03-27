@@ -1,4 +1,6 @@
+import supabase from "@/utils/supabase";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
+import { useRouter } from "next/navigation";
 
 type User = {
     id: string;
@@ -11,13 +13,38 @@ export default function Members({
     members,
     showMembers,
     setShowMembers,
+    room_id,
     room_creator_id,
+    current_user_id,
 }: {
     members: User[];
     showMembers: boolean;
     setShowMembers: React.Dispatch<React.SetStateAction<boolean>>;
+    room_id?: string;
     room_creator_id?: string;
+    current_user_id?: string;
 }) {
+    const router = useRouter();
+
+    function handleLeaveRoom() {
+        supabase
+            .from("rooms_users")
+            .delete()
+            .match({ user_id: current_user_id, room_id: room_id })
+            .select()
+            .then(({ data, error }) => {
+                if (error) {
+                    console.log("%cError leaving room", "color: red; font-weight: bold;");
+                    console.log(error);
+                }
+                if (data) {
+                    console.log("%cSuccess leaving room", "color: green; font-weight: bold;");
+                    // Redirect to home page
+                    router.push("/");
+                }
+            });
+    }
+
     return (
         <div
             className={`lg:col-span-1 lg:static lg:h-[calc(100vh-270px)] transition-all duration-300
@@ -54,6 +81,29 @@ export default function Members({
                                     className="rounded-full w-14 h-14 border-2 border-black/50 dark:border-white/50"
                                 />
                                 <strong>{member.name}</strong>
+                                {/* Button to leave room */}
+                                {member.id === current_user_id && member.id !== room_creator_id && (
+                                    <button className="action-btn-sm !bg-red-500 ml-auto" onClick={handleLeaveRoom}>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                            className="w-5 h-5">
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M3 4.25A2.25 2.25 0 015.25 2h5.5A2.25 2.25 0 0113 4.25v2a.75.75 0 01-1.5 0v-2a.75.75 0 00-.75-.75h-5.5a.75.75 0 00-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 00.75-.75v-2a.75.75 0 011.5 0v2A2.25 2.25 0 0110.75 18h-5.5A2.25 2.25 0 013 15.75V4.25z"
+                                                clipRule="evenodd"
+                                            />
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M6 10a.75.75 0 01.75-.75h9.546l-1.048-.943a.75.75 0 111.004-1.114l2.5 2.25a.75.75 0 010 1.114l-2.5 2.25a.75.75 0 11-1.004-1.114l1.048-.943H6.75A.75.75 0 016 10z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                        Leave
+                                    </button>
+                                )}
+                                {/* Icon for creator */}
                                 {member.id === room_creator_id && (
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
