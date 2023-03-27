@@ -21,6 +21,9 @@
     .action-btn {
         @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-2 items-center justify-center bg-blue-600 w-max p-2 text-white rounded-md;
     }
+    .action-btn-sm {
+        @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-1 items-center justify-center bg-blue-600 w-max px-[6px] py-[6px] text-white text-sm rounded-sm;
+    }
 }
 
 * {

@@ -22,6 +22,7 @@ export default function CreateNew() {
             .insert({
                 name: target.name.value,
                 description: target.description.value,
+                room_creator_id: user!.id,
             })
             .select()
             .then(({ data, error }) => {

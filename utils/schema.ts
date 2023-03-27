@@ -1,5 +1,5 @@
 export type Json =
-  | string        
+  | string
   | number
   | boolean
   | null
@@ -69,18 +69,21 @@ export interface Database {
           description: string | null
           id: string
           name: string
+          room_creator_id: string
         }
         Insert: {
           created_at?: string | null
           description?: string | null
           id?: string
           name?: string
+          room_creator_id: string
         }
         Update: {
           created_at?: string | null
           description?: string | null
           id?: string
           name?: string
+          room_creator_id?: string
         }
       }
       rooms_users: {
@@ -114,6 +117,7 @@ export interface Database {
           description: string | null
           id: string
           name: string
+          room_creator_id: string
         }[]
       }
       get_new_messages_count: {
@@ -132,6 +136,7 @@ export interface Database {
           description: string | null
           id: string
           name: string
+          room_creator_id: string
         }[]
       }
       get_users_from_room: {
@@ -139,6 +144,7 @@ export interface Database {
           room_id_input: string
         }
         Returns: {
+          id: string
           name: string
           avatar: string
           email: string
