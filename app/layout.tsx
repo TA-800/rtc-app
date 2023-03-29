@@ -12,9 +12,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const { user, loading } = useUser();
     const pathname = usePathname();
     const router = useRouter();
+    const protectedPaths = ["/create_room", "/joined_rooms", "/new_rooms"];
 
     // Add dark mode class to body
     useEffect(() => {
+        // test
+        console.log("running useEffect in layout.tsx");
+
         if (localStorage.getItem("dark") === "true") {
             document.documentElement.classList.add("dark");
         }
@@ -22,8 +26,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
     // Check if the user is logged in on every protected page
     useEffect(() => {
-        const protectedPaths = ["/create_room", "/joined_rooms", "/new_rooms"];
+        // Loading starts as true, and user starts as null
+        // Loading is set to false when the user data is retrieved (it can be null if the user is not logged in)
 
+        // If loading is finished and the user is null, then the user is not logged in
         if (!loading && !user) {
             if (protectedPaths.includes(pathname!) || pathname!.startsWith("/room/")) {
                 router.push("/account");
