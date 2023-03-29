@@ -15,9 +15,10 @@ type ModifiedRoom = Room & { new_messages_count: number };
 
 export default function Rooms() {
     const [rooms, setRooms] = useState<ModifiedRoom[]>([]);
-    const user = useUser();
+    const { user } = useUser();
     const router = useRouter();
 
+    // Get the rooms that the user has joined, and also get number of new messages for each room since the last time the user visited the room
     useEffect(() => {
         if (user) {
             getRooms(user.id).then(({ data, error }) => {
@@ -28,42 +29,44 @@ export default function Rooms() {
                 if (data) {
                     console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
                     console.log(data);
-                    // setRooms(data);
+
+                    // For each room, get the last message time and the new messages count
                     data.forEach(async (room) => {
+                        // time is the last message time for the currently iterated room
                         let time: Date | null = null;
+                        // last_message_times is the array of last message times for all rooms
                         const last_message_times = JSON.parse(localStorage.getItem("last_message_times") ?? "null");
-                        // const room_index = last_message_times?.findIndex(
-                        //     ({ room_id }: { room_id: string }) => room_id === room.id
-                        // );
-                        // Rewrite the above line but also include the user_id in the search
+
                         let room_index = -1;
 
+                        // If the last message times array exists
                         if (last_message_times) {
+                            // Find the index of the currently iterated room in the array
+                            // using the room id and the user id as the search criteria
                             room_index = last_message_times.findIndex(
                                 ({ room_id, user_id }: { room_id: string; user_id: string }) =>
                                     room_id === room.id && user_id === user.id
                             );
+                            // If the room is found in the array
                             if (room_index !== -1) {
+                                // Get the last message time for the currently iterated room and store it in time variable
                                 time = last_message_times[room_index].time_iso;
                             }
                         }
 
+                        // Get count of messages that are newer than the last message time for the currently iterated room
                         const { data: new_messages_count, error } = await supabase.rpc("get_new_messages_count", {
+                            // If either last message times array didn't exist or the currently iterated room wasn't found in the array
+                            // then set the last message time to the current time (which will retrieve no messages)
                             time_iso: time ? time.toString() : new Date().toISOString(),
                             room_id_input: room.id,
-                        });
-
-                        console.table({
-                            "room-id": room.id,
-                            "last-message-time": time,
-                            "new-messages-count": new_messages_count,
-                            "local-storage": last_message_times,
                         });
 
                         console.log("%cNew messages count", "color: green; font-weight: bold; font-size: 1.5rem;");
                         console.log(new_messages_count);
                         console.log(error);
 
+                        // Add the new messages count to the currently iterated room in the rooms state array
                         setRooms((prev) => {
                             return [
                                 ...prev,

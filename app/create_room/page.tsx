@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 export default function CreateNew() {
     const router = useRouter();
-    const user = useUser();
+    const { user } = useUser();
 
     const handleNewRoom = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

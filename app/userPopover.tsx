@@ -5,7 +5,7 @@ import supabase from "@/utils/supabase";
 import { useRouter } from "next/navigation";
 
 export default function UserPopover({ children }: { children: React.ReactNode }) {
-    const user = useUser();
+    const { user } = useUser();
     const router = useRouter();
 
     const handleSignOut = async () => {

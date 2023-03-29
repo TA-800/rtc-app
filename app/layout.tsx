@@ -9,7 +9,7 @@ import UserPopover from "./userPopover";
 import { User } from "@supabase/supabase-js"; // Import User type from supabase-js
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-    const user = useUser();
+    const { user, loading } = useUser();
     const pathname = usePathname();
     const router = useRouter();
 
@@ -24,12 +24,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     useEffect(() => {
         const protectedPaths = ["/create_room", "/joined_rooms", "/new_rooms"];
 
-        if (!user) {
+        if (!loading && !user) {
             if (protectedPaths.includes(pathname!) || pathname!.startsWith("/room/")) {
                 router.push("/account");
             }
         }
-    }, [pathname]);
+    }, [loading, pathname]);
 
     return (
         <html lang="en">

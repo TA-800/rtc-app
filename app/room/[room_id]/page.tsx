@@ -31,7 +31,7 @@ type User = {
 };
 
 export default function Room({ params: { room_id } }: { params: { room_id: string } }) {
-    const user = useUser();
+    const { user } = useUser();
     const [room, setRoom] = useState<Room>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [members, setMembers] = useState<User[]>([]);
@@ -40,7 +40,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
 
     function updateLastTime(created_at: string = new Date().toISOString()) {
         // Save current time to local storage
-        // localstorage -> last_message_time is an array of objects: {room-id, time-of-last-seen-msg}
+        // localstorage -> last_message_time is an array of objects: {user-id, room-id, time-of-last-seen-msg}
         // Convert last_message_time to array of objects from JSON String, then add/modify current room object's time, then convert back to JSON String and save to localstorage
         const last_message_times = JSON.parse(localStorage.getItem("last_message_times") ?? "[]");
         const room_index = last_message_times.findIndex(
@@ -73,6 +73,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             });
     }
 
+    // Get information about room, messages, and users
     useEffect(() => {
         // Update last message time
         if (user) {
@@ -215,7 +216,7 @@ function MessagesScrollList({ messages }: { messages: Message[] }) {
 }
 
 function Message({ message }: { message: Message }) {
-    const user = useUser();
+    const { user } = useUser();
 
     const handleDelete = () => {
         supabase
@@ -277,7 +278,7 @@ function CreateMessage({
     roomid: string;
     setShowMembers: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const user = useUser();
+    const { user } = useUser();
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();

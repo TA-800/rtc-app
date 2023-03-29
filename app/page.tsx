@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const user = useUser();
+    const { user } = useUser();
 
     return (
         <div className="flex justify-center items-center w-full h-full pb-[5.875rem]">

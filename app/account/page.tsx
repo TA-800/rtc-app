@@ -49,7 +49,7 @@ async function signOut() {
 }
 
 export default function Account() {
-    const user = useUser();
+    const { user } = useUser();
 
     useEffect(() => {
         console.log("%cUser", "color: green; font-weight: bold; font-size: 1.5rem;");

@@ -19,7 +19,7 @@ export default function Rooms() {
     const [debouncedSearch] = useDebounce(search, 1000);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
-    const user = useUser();
+    const { user } = useUser();
     const router = useRouter();
 
     // Prevents the user from accessing this page if they are not logged in
