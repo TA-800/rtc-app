@@ -6,7 +6,7 @@ import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export async function getRooms(user_id: string) {
+async function getRooms(user_id: string) {
     return await supabase.rpc("get_joined_rooms", { user_id_input: user_id });
 }
 

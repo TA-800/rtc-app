@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { Database } from "@/utils/schema";
 import { useDebounce } from "use-debounce";
 
-export async function getRooms(user_id: string) {
+async function getRooms(user_id: string) {
     return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
 }
 

@@ -13,15 +13,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     const pathname = usePathname();
     const router = useRouter();
 
+    // Add dark mode class to body
     useEffect(() => {
-        // Add dark mode class to body
         if (localStorage.getItem("dark") === "true") {
             document.documentElement.classList.add("dark");
         }
     }, []);
 
+    // Check if the user is logged in on every protected page
     useEffect(() => {
-        // Check if the user is logged in on every protected page
         const protectedPaths = ["/create_room", "/joined_rooms", "/new_rooms"];
 
         if (!user) {
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       */}
             <head />
 
-            <body className="">
+            <body className="overflow-x-hidden">
                 <Navbar>
                     <Navitem path="/" tooltip="Home">
                         <svg
