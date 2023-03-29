@@ -16,9 +16,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
     // Add dark mode class to body
     useEffect(() => {
-        // test
-        console.log("running useEffect in layout.tsx");
-
         if (localStorage.getItem("dark") === "true") {
             document.documentElement.classList.add("dark");
         }
