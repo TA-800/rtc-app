@@ -83,7 +83,7 @@ export default function Members({
                                 <strong>{member.name}</strong>
                                 {/* Button to leave room */}
                                 {member.id === current_user_id && member.id !== room_creator_id && (
-                                    <button className="action-btn-sm !bg-red-500 ml-auto" onClick={handleLeaveRoom}>
+                                    <button className="action-btn-sm !bg-red-600 ml-auto" onClick={handleLeaveRoom}>
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 20 20"

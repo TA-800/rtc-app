@@ -5,6 +5,7 @@ import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Database } from "@/utils/schema";
+import { useDebounce } from "use-debounce";
 
 export async function getRooms(user_id: string) {
     return await supabase.rpc("get_unjoined_rooms", { user_id_input: user_id });
@@ -14,10 +15,14 @@ export async function getRooms(user_id: string) {
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
 
 export default function Rooms() {
+    const [search, setSearch] = useState("");
+    const [debouncedSearch] = useDebounce(search, 1000);
     const [rooms, setRooms] = useState<Room[]>([]);
+    const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
     const user = useUser();
     const router = useRouter();
 
+    // Prevents the user from accessing this page if they are not logged in
     useEffect(() => {
         if (user) {
             getRooms(user.id).then(({ data, error }) => {
@@ -34,6 +39,11 @@ export default function Rooms() {
         }
     }, [user]);
 
+    // Filters the rooms based on the search query
+    useEffect(() => {
+        setFilteredRooms(rooms.filter((room) => room.name.toLowerCase().includes(debouncedSearch.toLowerCase())));
+    }, [rooms, debouncedSearch]);
+
     async function joinRoom(room_id: string) {
         const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
         console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
@@ -42,11 +52,24 @@ export default function Rooms() {
     }
 
     return (
-        <>
+        <div className="flex flex-col gap-9">
             <h1>New Rooms</h1>
-            <br />
+            <div className="flex flex-col gap-2">
+                <input
+                    name="search"
+                    placeholder="🔍 Search for rooms..."
+                    className="text-black border-2 border-blue-600 border-opacity-25 rounded w-full p-2"
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                {debouncedSearch && (
+                    <span>
+                        Search results for
+                        <span className="font-bold"> {debouncedSearch}</span>
+                    </span>
+                )}
+            </div>
             <ul className="flex flex-col gap-6">
-                {rooms?.map((room) => (
+                {filteredRooms?.map((room) => (
                     <li key={room.id} className="flex flex-col gap-2">
                         <div>
                             <h2>{room.name}</h2>
@@ -71,6 +94,6 @@ export default function Rooms() {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     );
 }
