@@ -4,13 +4,13 @@
 
 @layer base {
     h1 {
-        @apply text-3xl font-extrabold;
+        @apply lg:text-6xl text-4xl font-extrabold;
     }
     h2 {
-        @apply text-2xl font-bold;
+        @apply lg:text-4xl text-2xl font-bold;
     }
     h3 {
-        @apply text-xl font-semibold;
+        @apply lg:text-2xl text-xl font-normal;
     }
 }
 
@@ -19,10 +19,10 @@
         @apply bg-gray-300 text-black dark:bg-zinc-800 dark:text-white;
     }
     .action-btn {
-        @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-2 items-center justify-center bg-blue-600 w-max p-2 text-white rounded-md;
+        @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-2 items-center justify-center bg-blue-600 w-max max-h-10 p-2 text-white rounded-md;
     }
     .action-btn-sm {
-        @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-1 items-center justify-center bg-blue-600 w-max px-[6px] py-[6px] text-white text-sm rounded-sm;
+        @apply focus:outline focus:outline-2 focus:outline-black dark:focus:outline-blue-400 flex flex-row gap-1 items-center justify-center bg-blue-600 w-max max-h-8 px-[6px] py-[6px] text-white text-sm rounded-sm;
     }
 }
 

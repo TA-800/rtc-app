@@ -8,6 +8,11 @@ import "./globals.css";
 import UserPopover from "./userPopover";
 import { User } from "@supabase/supabase-js"; // Import User type from supabase-js
 
+import { Inter } from "@next/font/google";
+const inter = Inter({
+    subsets: ["latin"],
+});
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     const { user, loading } = useUser();
     const pathname = usePathname();
@@ -23,10 +28,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
     // Check if the user is logged in on every protected page
     useEffect(() => {
-        // Loading starts as true, and user starts as null
-        // Loading is set to false when the user data is retrieved (it can be null if the user is not logged in)
-
-        // If loading is finished and the user is null, then the user is not logged in
         if (!loading && !user) {
             if (protectedPaths.includes(pathname!) || pathname!.startsWith("/room/")) {
                 router.push("/account");
@@ -42,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       */}
             <head />
 
-            <body className="overflow-x-hidden">
+            <body className={inter.className + " overflow-x-hidden"}>
                 <Navbar>
                     <Navitem path="/" tooltip="Home">
                         <svg

@@ -49,7 +49,7 @@ async function signOut() {
 }
 
 export default function Account() {
-    const { user } = useUser();
+    const { user, loading } = useUser();
 
     useEffect(() => {
         console.log("%cUser", "color: green; font-weight: bold; font-size: 1.5rem;");
@@ -58,56 +58,59 @@ export default function Account() {
 
     return (
         <>
-            <h2>Account</h2>
-            {!user && (
+            <h2 className="font-extrabold">Account</h2>
+            {!loading && (
                 <>
-                    <p>Sign in to start accessing rooms and talking to others!</p>
-                    <p className="opacity-60 text-sm">
-                        Note that at the moment, accounts with the same email will share the same RTC account.
-                    </p>
-                    <br />
-                    <div className="flex flex-row gap-2">
-                        <button className="nav-btn" data-tooltip="Sign in (Google)" onClick={signInWithGoogle}>
-                            <img
-                                src="https://img.icons8.com/ios-filled/512/google-logo.png"
-                                height="24px"
-                                width="24px"
-                                alt="Google Logo"
-                                className="dark:invert dark:filter"
-                            />
-                        </button>
-                        <button className="nav-btn" data-tooltip="Sign in (Discord)" onClick={signInWithDiscord}>
-                            <img
-                                src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6918e57475a843f59f_icon_clyde_black_RGB.svg"
-                                height="24px"
-                                width="24px"
-                                alt="Discord Logo"
-                                className="dark:invert dark:filter"
-                            />
-                        </button>
-                    </div>
-                </>
-            )}
-            {user && (
-                <>
-                    <p>Sign out to stop accessing rooms and talking to others.</p>
-                    <br />
-                    <p>Username: {user.user_metadata.full_name}</p>
-                    <button className="nav-btn" data-tooltip="Sign Out" onClick={signOut}>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={1.5}
-                            stroke="currentColor"
-                            className="w-6 h-6">
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                            />
-                        </svg>
-                    </button>
+                    {!user ? (
+                        <>
+                            <p className="opacity-60">Sign in to start accessing rooms and talking to others!</p>
+                            <br />
+                            <div className="flex flex-row gap-2">
+                                <button className="nav-btn" data-tooltip="Sign in (Google)" onClick={signInWithGoogle}>
+                                    <img
+                                        src="https://img.icons8.com/ios-filled/512/google-logo.png"
+                                        height="24px"
+                                        width="24px"
+                                        alt="Google Logo"
+                                        className="dark:invert dark:filter"
+                                    />
+                                </button>
+                                <button className="nav-btn" data-tooltip="Sign in (Discord)" onClick={signInWithDiscord}>
+                                    <img
+                                        src="https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6918e57475a843f59f_icon_clyde_black_RGB.svg"
+                                        height="24px"
+                                        width="24px"
+                                        alt="Discord Logo"
+                                        className="dark:invert dark:filter"
+                                    />
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <p className="opacity-60">Sign out to stop accessing rooms and stop talking to others.</p>
+                            <br />
+                            <div className="flex flex-row gap-4 mb-2">
+                                <p className="font-bold">{user.user_metadata.full_name}</p>
+                                <p className="opacity-60">{user.user_metadata.email}</p>
+                            </div>
+                            <button className="nav-btn" data-tooltip="Sign Out" onClick={signOut}>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-6 h-6">
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
+                                    />
+                                </svg>
+                            </button>
+                        </>
+                    )}
                 </>
             )}
         </>

@@ -5,6 +5,7 @@ import supabase from "@/utils/supabase";
 import useUser from "@/utils/useUser";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useDebounce } from "use-debounce";
 
 async function getRooms(user_id: string) {
     return await supabase.rpc("get_joined_rooms", { user_id_input: user_id });
@@ -15,6 +16,10 @@ type ModifiedRoom = Room & { new_messages_count: number };
 
 export default function Rooms() {
     const [rooms, setRooms] = useState<ModifiedRoom[]>([]);
+    const [search, setSearch] = useState("");
+    const [debouncedSearch] = useDebounce(search, 1000);
+    const [filteredRooms, setFilteredRooms] = useState<ModifiedRoom[]>([]);
+
     const { user } = useUser();
     const router = useRouter();
 
@@ -82,22 +87,41 @@ export default function Rooms() {
         }
     }, [user]);
 
+    // Filters the rooms based on the search query
+    useEffect(() => {
+        setFilteredRooms(rooms.filter((room) => room.name.toLowerCase().includes(debouncedSearch.toLowerCase())));
+    }, [rooms, debouncedSearch]);
+
     async function joinRoom(room_id: string) {
         router.push(`/room/${room_id}`);
     }
 
     return (
-        <>
+        <div className="flex flex-col gap-9">
             <h1>Joined Rooms</h1>
-            <br />
+            <div className="flex flex-col gap-2">
+                <input
+                    name="search"
+                    placeholder="🔍 Search for joined rooms..."
+                    className="text-black border-2 border-blue-600 border-opacity-25 rounded w-full p-2"
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                {debouncedSearch && (
+                    <span>
+                        Search results for
+                        <span className="font-bold"> {debouncedSearch}</span>
+                    </span>
+                )}
+            </div>
             <ul className="flex flex-col gap-6">
-                {rooms?.map((room) => {
-                    return (
-                        <li key={room.id} className="flex flex-col gap-2">
-                            <div className="flex flex-row items-center gap-3">
-                                {room.new_messages_count > 0 ? (
-                                    <>
-                                        <span className="text-2xl font-extrabold">{room.name}</span>
+                {filteredRooms
+                    ?.sort((a, b) => b.new_messages_count - a.new_messages_count)
+                    .map((room) => {
+                        return (
+                            <li key={room.id} className="flex flex-col gap-2">
+                                <div className="flex flex-row items-center gap-3">
+                                    <h3 className={room.new_messages_count > 0 ? "font-bold" : ""}>{room.name}</h3>
+                                    {room.new_messages_count > 0 && (
                                         <div className="flex flex-row gap-1">
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
@@ -113,32 +137,29 @@ export default function Rooms() {
                                             </svg>
                                             {room.new_messages_count}
                                         </div>
-                                    </>
-                                ) : (
-                                    <h3>{room.name}</h3>
-                                )}
-                            </div>
+                                    )}
+                                </div>
 
-                            <button className="action-btn" onClick={() => joinRoom(room.id)}>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 h-6">
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3"
-                                    />
-                                </svg>
-                                Jump back in
-                            </button>
-                        </li>
-                    );
-                })}
+                                <button className="action-btn" onClick={() => joinRoom(room.id)}>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth={1.5}
+                                        stroke="currentColor"
+                                        className="w-6 h-6">
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0112 0v3"
+                                        />
+                                    </svg>
+                                    Jump back in
+                                </button>
+                            </li>
+                        );
+                    })}
             </ul>
-        </>
+        </div>
     );
 }

@@ -31,7 +31,7 @@ type User = {
 };
 
 export default function Room({ params: { room_id } }: { params: { room_id: string } }) {
-    const { user } = useUser();
+    const { user, loading } = useUser();
     const [room, setRoom] = useState<Room>();
     const [messages, setMessages] = useState<Message[]>([]);
     const [members, setMembers] = useState<User[]>([]);
@@ -144,14 +144,33 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
         };
     }, [user]);
 
+    // Accessibility: Escape key closes members list if open
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === "Escape" && showMembers) {
+            setShowMembers(false);
+        }
+    }
+
+    useEffect(() => {
+        document.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [showMembers]);
+
     return (
         <>
             <div className="flex flex-col gap-2">
-                <div className="flex flex-row">
+                <div className="flex flex-row items-center">
                     {/* Room Name */}
-                    <h1>{room?.name}</h1>
+                    <h1 className="break-all">{room?.name}</h1>
                     {/* Room delete button */}
-                    {room?.room_creator_id === user?.id && (
+                    {/* Conditions to render delete button */}
+                    {/* 1. Room data fetched
+                        2. User data is not loading
+                        3. User is the room creator */}
+                    {room && !loading && room.room_creator_id === user!.id && (
                         <button className="action-btn bg-red-700 ml-auto" onClick={handleRoomDelete}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -184,6 +203,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                     room_id={room_id}
                 />
             </div>
+            <div className="md:h-0 h-14" />
             <CreateMessage roomid={room_id} setShowMembers={setShowMembers} />
         </>
     );
@@ -191,10 +211,11 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
 
 function MessagesScrollList({ messages }: { messages: Message[] }) {
     return (
-        <ScrollArea.Root className="text-black lg:col-span-3 col-span-4 h-[calc(100vh-270px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
+        <ScrollArea.Root className="text-black lg:col-span-3 col-span-4 h-[calc(100vh-290px)] rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
             <ScrollArea.Viewport className="w-full h-full rounded">
-                <div className="w-full bg-gray-200 dark:bg-zinc-700 p-4">Message Log</div>
+                <div className="w-full bg-gray-200 dark:bg-zinc-700 p-4 opacity-75">Message Log</div>
                 {messages
+                    // We can sort by id because it's incremental
                     .sort((a, b) => a.id - b.id)
                     .map((message) => (
                         <Message message={message} key={message.id} />

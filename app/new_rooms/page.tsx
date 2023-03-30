@@ -15,10 +15,11 @@ async function getRooms(user_id: string) {
 type Room = Database["public"]["Tables"]["rooms"]["Row"];
 
 export default function Rooms() {
+    const [rooms, setRooms] = useState<Room[]>([]);
     const [search, setSearch] = useState("");
     const [debouncedSearch] = useDebounce(search, 1000);
-    const [rooms, setRooms] = useState<Room[]>([]);
     const [filteredRooms, setFilteredRooms] = useState<Room[]>([]);
+
     const { user } = useUser();
     const router = useRouter();
 
@@ -72,7 +73,7 @@ export default function Rooms() {
                 {filteredRooms?.map((room) => (
                     <li key={room.id} className="flex flex-col gap-2">
                         <div>
-                            <h2>{room.name}</h2>
+                            <h3>{room.name}</h3>
                             <p className="opacity-60">{room.description}</p>
                         </div>
                         <button className="action-btn" onClick={() => joinRoom(room.id)}>

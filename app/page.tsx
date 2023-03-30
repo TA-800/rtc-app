@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
-    const { user } = useUser();
+    const { user, loading } = useUser();
 
     return (
         <div className="flex justify-center items-center w-full h-full pb-[5.875rem]">
@@ -18,8 +18,7 @@ export default function Home() {
                 <span className="font-mono text-5xl font-black opacity-10">RTC Webapp</span>
             </div>
 
-            {!user && <h3>Sign in to get started!</h3>}
-            {user && <Start />}
+            {!loading && <>{user ? <Start /> : <h3>Sign in to get started!</h3>}</>}
         </div>
     );
 }

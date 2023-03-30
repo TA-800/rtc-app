@@ -20,7 +20,7 @@ export default function CreateNew() {
         supabase
             .from("rooms")
             .insert({
-                name: target.name.value,
+                name: target.name.value.substring(0, 20),
                 description: target.description.value,
                 room_creator_id: user!.id,
             })
@@ -64,7 +64,7 @@ export default function CreateNew() {
             <form className="flex flex-col gap-2" onSubmit={(e) => handleNewRoom(e)}>
                 <fieldset className="flex flex-col gap-1">
                     <label htmlFor="name">Name</label>
-                    <Input name="name" placeholder="What do you want to call your room?" />
+                    <Input maxLength={20} name="name" placeholder="What do you want to call your room?" />
                 </fieldset>
                 <fieldset className="flex flex-col gap-1">
                     <label htmlFor="description">Description</label>

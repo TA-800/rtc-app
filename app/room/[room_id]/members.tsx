@@ -47,7 +47,7 @@ export default function Members({
 
     return (
         <div
-            className={`lg:col-span-1 lg:static lg:h-[calc(100vh-270px)] transition-all duration-300
+            className={`lg:col-span-1 lg:static lg:h-[calc(100vh-290px)] transition-all duration-300
                         w-full h-full top-0 fixed z-50 ${showMembers ? "left-0" : "-left-full"}`}>
             <ScrollArea.Root className="text-black h-full rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
                 <ScrollArea.Viewport className="w-full h-full rounded">
