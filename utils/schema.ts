@@ -108,6 +108,12 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
+      delete_room_on_empty: {
+        Args: {
+          room_id_input: string
+        }
+        Returns: string
+      }
       get_joined_rooms: {
         Args: {
           user_id_input: string

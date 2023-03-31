@@ -8,7 +8,7 @@ import "./globals.css";
 import UserPopover from "./userPopover";
 import { User } from "@supabase/supabase-js"; // Import User type from supabase-js
 
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 const inter = Inter({
     subsets: ["latin"],
 });

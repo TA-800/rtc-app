@@ -1,6 +1,8 @@
 import supabase from "@/utils/supabase";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { getUsers } from "./page";
 
 type User = {
     id: string;
@@ -11,6 +13,7 @@ type User = {
 
 export default function Members({
     members,
+    setMembers,
     showMembers,
     setShowMembers,
     room_id,
@@ -18,6 +21,7 @@ export default function Members({
     current_user_id,
 }: {
     members: User[];
+    setMembers: React.Dispatch<React.SetStateAction<User[]>>;
     showMembers: boolean;
     setShowMembers: React.Dispatch<React.SetStateAction<boolean>>;
     room_id?: string;
@@ -25,6 +29,41 @@ export default function Members({
     current_user_id?: string;
 }) {
     const router = useRouter();
+
+    // Set up realtime listener for room members
+    useEffect(() => {
+        console.log("Running useEffect for room members");
+
+        const room_members = supabase
+            .channel(`room_members:${room_id}`)
+            .on("postgres_changes", { event: "INSERT", schema: "public", table: "rooms_users" }, () => {
+                console.log("User joined room.");
+                // Update the members list
+                getUsers(room_id!).then(({ data, error }) => {
+                    if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
+                    if (data) {
+                        console.log("%cSuccess updating room members", "color: green; font-weight: bold;");
+                        setMembers(data);
+                    }
+                });
+            })
+            .on("postgres_changes", { event: "DELETE", schema: "public", table: "rooms_users" }, () => {
+                console.log("User left room.");
+                // Update the members list
+                getUsers(room_id!).then(({ data, error }) => {
+                    if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
+                    if (data) {
+                        console.log("%cSuccess updating room members", "color: green; font-weight: bold;");
+                        setMembers(data);
+                    }
+                });
+            })
+            .subscribe();
+
+        return () => {
+            room_members.unsubscribe();
+        };
+    }, []);
 
     function handleLeaveRoom() {
         supabase
@@ -39,6 +78,21 @@ export default function Members({
                 }
                 if (data) {
                     console.log("%cSuccess leaving room", "color: green; font-weight: bold;");
+
+                    // Call delete_room_on_empty RPC every time a user leaves a room
+                    supabase
+                        .rpc("delete_room_on_empty", { room_id_input: room_id! })
+                        .select()
+                        .then(({ data, error }) => {
+                            if (error) {
+                                console.log("%cError calling onEmpty room", "color: red; font-weight: bold;");
+                                console.log(error);
+                            }
+                            if (data) {
+                                console.log("%cSuccess calling onEmpty room", "color: green; font-weight: bold;");
+                                console.log(data);
+                            }
+                        });
                     // Redirect to home page
                     router.push("/");
                 }
@@ -47,7 +101,7 @@ export default function Members({
 
     return (
         <div
-            className={`lg:col-span-1 lg:static lg:h-[calc(100vh-290px)] transition-all duration-300
+            className={`lg:col-span-1 lg:static lg:h-[calc(100vh-290px)] lg:z-0 transition-all duration-300
                         w-full h-full top-0 fixed z-50 ${showMembers ? "left-0" : "-left-full"}`}>
             <ScrollArea.Root className="text-black h-full rounded overflow-hidden bg-gray-100 dark:bg-zinc-800 dark:text-white border-black/25 dark:border-white/25 border-2">
                 <ScrollArea.Viewport className="w-full h-full rounded">
@@ -74,43 +128,49 @@ export default function Members({
                         </button>
                     </div>
                     <div className="flex flex-col gap-2 p-2">
-                        {members.map((member, index) => (
-                            <div key={index} className="flex flex-row items-center gap-2">
-                                <img
-                                    src={member.avatar}
-                                    className="rounded-full w-14 h-14 border-2 border-black/50 dark:border-white/50"
-                                />
-                                <strong>{member.name}</strong>
-                                {/* Button to leave room */}
-                                {member.id === current_user_id && member.id !== room_creator_id && (
-                                    <button className="action-btn-sm !bg-red-600 ml-auto" onClick={handleLeaveRoom}>
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                            className="w-5 h-5">
-                                            <path d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614z" />
-                                            <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-                                        </svg>
-                                        Leave
-                                    </button>
-                                )}
-                                {/* Icon for creator */}
-                                {member.id === room_creator_id && (
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24"
-                                        fill="currentColor"
-                                        className="w-6 h-6">
-                                        <path
-                                            fillRule="evenodd"
-                                            d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 4.064 10.933 9.563 12.348a.749.749 0 00.374 0c5.499-1.415 9.563-6.406 9.563-12.348 0-1.39-.223-2.73-.635-3.985a.75.75 0 00-.722-.516l-.143.001c-2.996 0-5.717-1.17-7.734-3.08zm3.094 8.016a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-                                            clipRule="evenodd"
-                                        />
-                                    </svg>
-                                )}
-                            </div>
-                        ))}
+                        {members
+                            .sort((a, b) => (a.id === room_creator_id ? -1 : b.id === room_creator_id ? 1 : 0)) // Sort by creator
+                            .map((member, index) => (
+                                <div key={index} className="flex flex-row items-center gap-2">
+                                    <img
+                                        src={member.avatar}
+                                        className="rounded-full w-14 h-14 border-2 border-black/50 dark:border-white/50"
+                                    />
+
+                                    <div className="flex flex-row gap-2">
+                                        <strong className="break-all">{member.name}</strong>
+                                        {/* Icon for creator */}
+                                        {member.id === room_creator_id && (
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                className="w-5 h-5 text-green-600">
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        )}
+                                    </div>
+
+                                    {/* Button to leave room */}
+                                    {member.id === current_user_id && (
+                                        <button className="action-btn-sm !bg-red-600 ml-auto" onClick={handleLeaveRoom}>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
+                                                className="w-5 h-5">
+                                                <path d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614z" />
+                                                <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                                            </svg>
+                                            Leave
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
                     </div>
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar

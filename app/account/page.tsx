@@ -88,7 +88,7 @@ export default function Account() {
                         </>
                     ) : (
                         <>
-                            <p className="opacity-60">Sign out to stop accessing rooms and stop talking to others.</p>
+                            <p className="opacity-60">Sign out from RTC by clicking on the button below.</p>
                             <br />
                             <div className="flex flex-row gap-4 mb-2">
                                 <p className="font-bold">{user.user_metadata.full_name}</p>

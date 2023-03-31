@@ -17,7 +17,7 @@ async function getMessages(room_id: string) {
     return await supabase.from("messages").select().eq("room_id", room_id);
 }
 
-async function getUsers(room_id: string) {
+export async function getUsers(room_id: string) {
     return await supabase.rpc("get_users_from_room", { room_id_input: room_id }).returns<User[]>();
 }
 
@@ -76,9 +76,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
     // Get information about room, messages, and users
     useEffect(() => {
         // Update last message time
-        if (user) {
-            updateLastTime();
-        }
+        if (user) updateLastTime();
 
         getRoom(room_id).then(({ data, error }) => {
             if (error) {
@@ -109,7 +107,6 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
             }
             if (data) {
                 console.log("%cUsers obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
-                console.log(data);
                 setMembers(data);
             }
         });
@@ -146,14 +143,10 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
 
     // Accessibility: Escape key closes members list if open
     function handleKeyDown(e: KeyboardEvent) {
-        if (e.key === "Escape" && showMembers) {
-            setShowMembers(false);
-        }
+        if (e.key === "Escape" && showMembers) setShowMembers(false);
     }
-
     useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
-
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
@@ -170,7 +163,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                     {/* 1. Room data fetched
                         2. User data is not loading
                         3. User is the room creator */}
-                    {room && !loading && room.room_creator_id === user!.id && (
+                    {room && !loading && room.room_creator_id === user?.id && (
                         <button className="action-btn bg-red-700 ml-auto" onClick={handleRoomDelete}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -196,6 +189,7 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 <MessagesScrollList messages={messages} />
                 <Members
                     members={members}
+                    setMembers={setMembers}
                     showMembers={showMembers}
                     setShowMembers={setShowMembers}
                     room_creator_id={room?.room_creator_id}
