@@ -2,7 +2,10 @@ import supabase from "@/utils/supabase";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { getUsers } from "./page";
+
+async function getUsers(room_id: string) {
+    return await supabase.rpc("get_users_from_room", { room_id_input: room_id }).returns<User[]>();
+}
 
 type User = {
     id: string;
@@ -36,26 +39,20 @@ export default function Members({
 
         const room_members = supabase
             .channel(`room_members:${room_id}`)
-            .on("postgres_changes", { event: "INSERT", schema: "public", table: "rooms_users" }, () => {
+            .on("postgres_changes", { event: "INSERT", schema: "public", table: "rooms_users" }, (_) => {
                 console.log("User joined room.");
                 // Update the members list
                 getUsers(room_id!).then(({ data, error }) => {
                     if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
-                    if (data) {
-                        console.log("%cSuccess updating room members", "color: green; font-weight: bold;");
-                        setMembers(data);
-                    }
+                    if (data) setMembers(data);
                 });
             })
-            .on("postgres_changes", { event: "DELETE", schema: "public", table: "rooms_users" }, () => {
+            .on("postgres_changes", { event: "DELETE", schema: "public", table: "rooms_users" }, (_) => {
                 console.log("User left room.");
                 // Update the members list
                 getUsers(room_id!).then(({ data, error }) => {
                     if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
-                    if (data) {
-                        console.log("%cSuccess updating room members", "color: green; font-weight: bold;");
-                        setMembers(data);
-                    }
+                    if (data) setMembers(data);
                 });
             })
             .subscribe();

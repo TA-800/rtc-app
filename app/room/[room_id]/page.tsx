@@ -17,7 +17,7 @@ async function getMessages(room_id: string) {
     return await supabase.from("messages").select().eq("room_id", room_id);
 }
 
-export async function getUsers(room_id: string) {
+async function getUsers(room_id: string) {
     return await supabase.rpc("get_users_from_room", { room_id_input: room_id }).returns<User[]>();
 }
 
