@@ -35,12 +35,9 @@ export default function Members({
 
     // Set up realtime listener for room members
     useEffect(() => {
-        console.log("Running useEffect for room members");
-
         const room_members = supabase
             .channel(`room_members:${room_id}`)
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "rooms_users" }, (_) => {
-                console.log("User joined room.");
                 // Update the members list
                 getUsers(room_id!).then(({ data, error }) => {
                     if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
@@ -48,7 +45,6 @@ export default function Members({
                 });
             })
             .on("postgres_changes", { event: "DELETE", schema: "public", table: "rooms_users" }, (_) => {
-                console.log("User left room.");
                 // Update the members list
                 getUsers(room_id!).then(({ data, error }) => {
                     if (error) console.log("%cError updating room members", "color: red; font-weight: bold;");
@@ -75,7 +71,6 @@ export default function Members({
                 }
                 if (data) {
                     console.log("%cSuccess leaving room", "color: green; font-weight: bold;");
-
                     // Call delete_room_on_empty RPC every time a user leaves a room
                     supabase
                         .rpc("delete_room_on_empty", { room_id_input: room_id! })
