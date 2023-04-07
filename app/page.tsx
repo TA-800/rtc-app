@@ -4,6 +4,10 @@ import useUser from "@/utils/useUser";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
+/**
+ * @todo
+ * 1. Add information to head / meta tags
+ */
 export default function Home() {
     const { user, loading } = useUser();
 

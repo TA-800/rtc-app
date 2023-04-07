@@ -33,8 +33,6 @@ export default function Rooms() {
                 }
                 if (data) {
                     console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
-                    console.log(data);
-
                     // For each room, get the last message time and the new messages count
                     data.forEach(async (room) => {
                         // time is the last message time for the currently iterated room
@@ -66,11 +64,6 @@ export default function Rooms() {
                             time_iso: time ? time.toString() : new Date().toISOString(),
                             room_id_input: room.id,
                         });
-
-                        console.log("%cNew messages count", "color: green; font-weight: bold; font-size: 1.5rem;");
-                        console.log(new_messages_count);
-                        console.log(error);
-
                         // Add the new messages count to the currently iterated room in the rooms state array
                         setRooms((prev) => {
                             return [

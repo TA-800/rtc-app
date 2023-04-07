@@ -115,7 +115,6 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
         const messagesSubscription = supabase
             .channel(`room:${room_id}`)
             .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
-                console.log("Received realtime update:", payload);
                 // Update messages
                 // @ts-ignore
                 setMessages((messages) => [...messages, payload.new]);
@@ -128,7 +127,6 @@ export default function Room({ params: { room_id } }: { params: { room_id: strin
                 });
             })
             .on("postgres_changes", { event: "DELETE", schema: "public", table: "messages" }, (payload) => {
-                console.log("Received realtime update:", payload);
                 // Update messages
                 setMessages((messages) => messages.filter((message) => message.id !== payload.old.id));
                 // Save current time to local storage

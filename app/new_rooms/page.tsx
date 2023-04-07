@@ -33,7 +33,6 @@ export default function Rooms() {
                 }
                 if (data) {
                     console.log("%cRooms obtained!", "color: green; font-weight: bold; font-size: 1.5rem;");
-                    console.log(data);
                     setRooms(data);
                 }
             });
@@ -47,8 +46,6 @@ export default function Rooms() {
 
     async function joinRoom(room_id: string) {
         const { data } = await supabase.rpc("join_room", { user_id_input: user!.id, room_id_input: room_id });
-        console.log("%cData from RPC", "color: green; font-weight: bold; font-size: 1.5rem;");
-        console.log(data);
         router.push(`/room/${room_id}`);
     }
 

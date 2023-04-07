@@ -12,11 +12,9 @@ async function signInWithGoogle() {
     });
     if (error) {
         console.log("%cError signing in with Google", "color: red; font-weight: bold; font-size: 1.5rem;");
-        console.log(error);
     }
     if (data) {
         console.log("%Signing in with Google", "color: yellow; font-weight: bold; font-size: 1.5rem;");
-        console.log(data);
     }
 }
 
@@ -29,11 +27,9 @@ async function signInWithDiscord() {
     });
     if (error) {
         console.log("%cError signing in with Discord", "color: red; font-weight: bold; font-size: 1.5rem;");
-        console.log(error);
     }
     if (data) {
         console.log("%Signing in with Discord", "color: yellow; font-weight: bold; font-size: 1.5rem;");
-        console.log(data);
     }
 }
 
@@ -41,7 +37,6 @@ async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) {
         console.log("%cError signing out", "color: red; font-weight: bold; font-size: 1.5rem;");
-        console.log(error);
     } else {
         // Refresh the page to clear the user session object
         window.location.reload();
@@ -50,11 +45,6 @@ async function signOut() {
 
 export default function Account() {
     const { user, loading } = useUser();
-
-    useEffect(() => {
-        console.log("%cUser", "color: green; font-weight: bold; font-size: 1.5rem;");
-        console.log(user);
-    }, [user]);
 
     return (
         <>
