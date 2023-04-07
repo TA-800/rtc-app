@@ -7,6 +7,8 @@ It is incredibly easy to get in touch with friends and family through social med
 ## Website Overview
 
 ![image](https://user-images.githubusercontent.com/31612100/230683683-c770d12e-814e-4842-9925-e0b5f907d3d7.png)
+![image](https://user-images.githubusercontent.com/31612100/230683762-fdc41578-5b33-48a4-ac1a-8ce36a0ad6bc.png)
+
 
 ## Features
 
